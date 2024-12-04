@@ -8,11 +8,13 @@ import { LocalStrategy } from './strategies/local.strategy';
 import { AuthenticateMiddleware } from '../../middlewares';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { FacebookStrategy } from './strategies/facebook.strategy';
+import { MailsModule } from '../mails/mails.module';
 
 @Module({
   imports: [
     JwtModule.register({}),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MailsModule,
   ],
   controllers: [AuthController],
   providers: [LocalStrategy, FacebookStrategy, GoogleStrategy, AuthService],

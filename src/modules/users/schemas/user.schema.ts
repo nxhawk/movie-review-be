@@ -25,6 +25,21 @@ export class User extends AbstractEntity {
   @Prop({ required: true })
   password: string;
 
+  @ApiProperty({
+    type: Boolean,
+    example: false,
+  })
+  @Prop({ default: false })
+  verify: boolean;
+
+  @ApiProperty({
+    type: String,
+    example:
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjg1OTQ5MzI0LCJleHAiOjE2ODU5NDkzMjd9.JAFScDSW24LJjlLBrfuB2PxG7f7jaw3NVMgrCDmFjoA',
+  })
+  @Prop()
+  verifyEmailToken: string;
+
   @Prop()
   refreshToken: string;
 }

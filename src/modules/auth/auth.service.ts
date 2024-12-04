@@ -16,6 +16,7 @@ import { generateHash, validateHash } from '../../common/utils';
 import { IOAuthRequest, IUserRequest } from '../../interfaces';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { TokenInvalidException } from '../../exceptions';
+import { MailsService } from '../mails/mails.service';
 
 @Injectable()
 export class AuthService {
@@ -24,6 +25,7 @@ export class AuthService {
     @InjectModel(User.name) private userModel: Model<User>,
     private readonly jwtService: JwtService,
     private readonly config: ConfigService,
+    private readonly mailsService: MailsService,
   ) {}
 
   async register(registerDto: RegisterDto) {
@@ -36,14 +38,33 @@ export class AuthService {
 
     const securedPassword = generateHash(password);
 
+    const verifyEmailToken = this.signEmailConfirmToken(email);
+
+    await this.sendVerificationLink({
+      email: registerDto.email,
+      name: registerDto.name,
+      token: verifyEmailToken,
+    });
+
     await this.userModel.create({
       ...registerDto,
       password: securedPassword,
+      verifyEmailToken,
     });
 
     return {
       message: USERS_MESSAGES.REGISTER_SUCCESSFUL,
     };
+  }
+
+  private signEmailConfirmToken(email: string) {
+    return this.jwtService.sign(
+      { email },
+      {
+        secret: this.config.getOrThrow('mail.jwtMailSecret'),
+        expiresIn: `${this.config.getOrThrow('mail.jwtMailExpires')}s`,
+      },
+    );
   }
 
   async login(req: IUserRequest) {
@@ -52,11 +73,13 @@ export class AuthService {
     const accessToken = this.signAccessToken({
       userId: user.id,
       email: user.email,
+      verifyStatus: true,
     });
 
     const refreshToken = this.signRefreshToken({
       userId: user.id,
       email: user.email,
+      verifyStatus: true,
     });
 
     await this.updateRefreshToken(user.id.toString(), refreshToken);
@@ -98,10 +121,12 @@ export class AuthService {
 
     const accessToken = this.signAccessToken({
       ...user,
+      verifyStatus: true,
     });
 
     const refreshToken = this.signRefreshToken({
       ...user,
+      verifyStatus: true,
     });
 
     await this.updateRefreshToken(user.userId.toString(), refreshToken);
@@ -139,10 +164,12 @@ export class AuthService {
 
     const accessToken = this.signAccessToken({
       ...user,
+      verifyStatus: true,
     });
 
     const refreshToken = this.signRefreshToken({
       ...user,
+      verifyStatus: true,
     });
 
     await this.updateRefreshToken(user.userId.toString(), refreshToken);
@@ -176,6 +203,7 @@ export class AuthService {
       const accessToken = this.signAccessToken({
         userId: payload.id,
         email: payload.email,
+        verifyStatus: true,
       });
 
       return {
@@ -189,15 +217,83 @@ export class AuthService {
     }
   }
 
+  async confirmEmail(token: string) {
+    try {
+      const payload: {
+        email: string;
+      } = this.jwtService.verify(token, {
+        secret: this.config.getOrThrow<string>('mail.jwtMailSecret'),
+        ignoreExpiration: false,
+      });
+
+      const user = await this.userModel.findOne({
+        email: payload.email,
+      });
+
+      if (!user) throw new NotFoundException(USERS_MESSAGES.USER_NOT_FOUND);
+
+      if (user.verify)
+        throw new BadRequestException(USERS_MESSAGES.ACCOUNT_IS_VERIFIED);
+
+      await this.userModel.updateOne(
+        { email: payload.email },
+        {
+          $set: {
+            verify: true,
+            verifyEmailToken: null,
+          },
+        },
+      );
+
+      return {
+        message: USERS_MESSAGES.VERIFY_EMAIL_SUCCESSFULLY,
+      };
+    } catch (error) {
+      throw new TokenInvalidException(TOKEN_MESSAGES.TOKEN_IS_INVALID);
+    }
+  }
+
+  private sendVerificationLink({
+    email,
+    name,
+    token,
+  }: {
+    email: string;
+    name: string;
+    token: string;
+  }) {
+    const apiPrefix =
+      this.config.getOrThrow<string>('app.apiPrefix') +
+      '/' +
+      this.config.getOrThrow<string>('app.apiVersion');
+
+    const verifyEmailUrl = `${this.config.getOrThrow(
+      'app.appURL',
+    )}/${apiPrefix}/auth/verify-email?token=${token}`;
+
+    return this.mailsService.sendMail({
+      to: email,
+      from: 'movie-review-app@gmail.com',
+      subject: 'Email confirmation for movie app',
+      template: './verify-mail',
+      context: {
+        name,
+        verifyEmailUrl,
+      },
+    });
+  }
+
   private signAccessToken({
     userId,
     email,
+    verifyStatus,
   }: {
     userId: number;
     email: string;
+    verifyStatus: boolean;
   }) {
     return this.jwtService.sign(
-      { id: userId, email },
+      { id: userId, email, verifyStatus },
       {
         secret: this.config.getOrThrow<string>('auth.accessTokenSecret'),
         // change expires unit to seconds
@@ -210,12 +306,14 @@ export class AuthService {
   private signRefreshToken({
     userId,
     email,
+    verifyStatus,
   }: {
     userId: number;
     email: string;
+    verifyStatus: boolean;
   }) {
     return this.jwtService.sign(
-      { id: userId, email },
+      { id: userId, email, verifyStatus },
       {
         secret: this.config.getOrThrow<string>('auth.refreshTokenSecret'),
         // change expires unit to seconds
@@ -270,7 +368,7 @@ export class AuthService {
         USERS_MESSAGES.PASSWORD_OR_USERNAME_INCORRECT,
       );
 
-    return { id: user.id, email: user.email };
+    return { id: user.id, email: user.email, VerifyStatus: user.verify };
   }
 
   async getMe(email: string) {

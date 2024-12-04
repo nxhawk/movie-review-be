@@ -9,6 +9,7 @@ import {
   Delete,
   Get,
   Redirect,
+  Query,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ROUTES } from '../../constants/route';
@@ -161,6 +162,11 @@ export class AuthController {
   @Post('refresh-token')
   refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
     return this.authService.refreshToken(refreshTokenDto);
+  }
+
+  @Get('verify-email')
+  findOne(@Query('token') token: string) {
+    return this.authService.confirmEmail(token);
   }
 
   @ApiBearerAuth()

@@ -13,7 +13,7 @@ export const USERS_MESSAGES = {
   PASSWORD_OR_USERNAME_INCORRECT: 'Password or username is incorrect',
   UPDATE_PROFILE_SUCCESSFULLY: 'Update profile successfully',
   DELETE_USER_SUCCESSFULLY: 'Delete user successfully',
-  VERIFY_TOKEN_BEFORE_LOGIN: 'Please verify token before login ',
+  VERIFY_TOKEN_BEFORE_LOGIN: 'Please verify token before login',
   PASSWORD_NOT_MATCH: 'Password not match',
   CONFIRM_PASSWORD_MUST_BE_THE_SAME_AS_A_PASSWORD:
     'Confirm password must be the same as password',
