@@ -81,7 +81,7 @@ import { MailsModule } from './modules/mails/mails.module';
           from: '"No Reply" <no-reply@localhost>',
         },
         template: {
-          dir: process.cwd() + '/templates/',
+          dir: 'src/templates/',
           adapter: new HandlebarsAdapter(),
           options: {
             strict: true,
