@@ -11,9 +11,11 @@ import { RegisterDto } from './dto/register.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from '../users/schemas/user.schema';
-import { USERS_MESSAGES } from '../../constants/message';
+import { TOKEN_MESSAGES, USERS_MESSAGES } from '../../constants/message';
 import { generateHash, validateHash } from '../../common/utils';
 import { IOAuthRequest, IUserRequest } from '../../interfaces';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { TokenInvalidException } from '../../exceptions';
 
 @Injectable()
 export class AuthService {
@@ -56,6 +58,8 @@ export class AuthService {
       userId: user.id,
       email: user.email,
     });
+
+    await this.updateRefreshToken(user.id.toString(), refreshToken);
 
     return {
       message: USERS_MESSAGES.LOGIN_SUCCESSFUL,
@@ -100,6 +104,8 @@ export class AuthService {
       ...user,
     });
 
+    await this.updateRefreshToken(user.userId.toString(), refreshToken);
+
     const frontendURL = this.config.getOrThrow('app.frontendURL');
 
     return `${frontendURL}/login?access_token=${accessToken}&refresh_token=${refreshToken}`;
@@ -139,9 +145,48 @@ export class AuthService {
       ...user,
     });
 
+    await this.updateRefreshToken(user.userId.toString(), refreshToken);
+
     const frontendURL = this.config.getOrThrow('app.frontendURL');
 
     return `${frontendURL}/login?access_token=${accessToken}&refresh_token=${refreshToken}`;
+  }
+
+  async refreshToken(refreshTokenDto: RefreshTokenDto) {
+    try {
+      const payload: {
+        id: number;
+        email: string;
+      } = this.jwtService.verify(refreshTokenDto.refreshToken, {
+        secret: this.config.getOrThrow<string>('auth.refreshTokenSecret'),
+        ignoreExpiration: false,
+      });
+
+      const user = await this.findUserByEmail(payload.email);
+      if (!user || !user.refreshToken)
+        throw new TokenInvalidException(TOKEN_MESSAGES.TOKEN_IS_INVALID);
+      const refreshTokenMatches = await validateHash(
+        refreshTokenDto.refreshToken,
+        user.refreshToken,
+      );
+      if (!refreshTokenMatches)
+        throw new TokenInvalidException(TOKEN_MESSAGES.TOKEN_IS_INVALID);
+
+      // all good
+      const accessToken = this.signAccessToken({
+        userId: payload.id,
+        email: payload.email,
+      });
+
+      return {
+        message: USERS_MESSAGES.REFRESH_TOKEN_SUCCESSFULLY,
+        data: {
+          accessToken,
+        },
+      };
+    } catch (error) {
+      throw new TokenInvalidException(TOKEN_MESSAGES.TOKEN_IS_INVALID);
+    }
   }
 
   private signAccessToken({
@@ -188,6 +233,18 @@ export class AuthService {
     return Boolean(existingUser);
   }
 
+  private async updateRefreshToken(userId: string, refreshToken: string) {
+    const hashedRefreshToken = await generateHash(refreshToken);
+
+    await this.userModel.findByIdAndUpdate(
+      userId,
+      {
+        refreshToken: hashedRefreshToken,
+      },
+      { new: true },
+    );
+  }
+
   async findUserByEmail(email: string): Promise<User> {
     const existingUser = await this.userModel.findOne({
       email,
@@ -227,7 +284,9 @@ export class AuthService {
     return user;
   }
 
-  logout() {
+  async logout(email: string) {
+    await this.userModel.updateOne({ email }, { $set: { refreshToken: null } });
+
     return {
       message: USERS_MESSAGES.LOGOUT_SUCCESSFUL,
     };

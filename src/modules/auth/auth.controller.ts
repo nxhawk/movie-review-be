@@ -29,6 +29,7 @@ import {
   LocalAuthGuard,
 } from '../../guards';
 import { User } from '../users/schemas/user.schema';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @ApiTags('Authentication')
 @Controller(ROUTES.AUTH)
@@ -136,6 +137,32 @@ export class AuthController {
     return this.authService.getMe(req.user.email);
   }
 
+  @ApiOkResponse({
+    schema: {
+      type: 'object',
+      properties: {
+        message: {
+          type: 'string',
+          example: 'Register successfully',
+        },
+        data: {
+          type: 'object',
+          properties: {
+            accessToken: {
+              type: 'string',
+              example:
+                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjg1OTQ5MzI0LCJleHAiOjE2ODU5NDkzMjd9.JAFScDSW24LJjlLBrfuB2PxG7f7jaw3NVMgrCDmFjoA',
+            },
+          },
+        },
+      },
+    },
+  })
+  @Post('refresh-token')
+  refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
+    return this.authService.refreshToken(refreshTokenDto);
+  }
+
   @ApiBearerAuth()
   @ApiOkResponse({
     schema: {
@@ -156,7 +183,7 @@ export class AuthController {
   })
   @HttpCode(HttpStatus.OK)
   @Delete('/logout')
-  async signOut() {
-    return this.authService.logout();
+  async signOut(@Req() req: IUserRequest) {
+    return this.authService.logout(req.user.email);
   }
 }
