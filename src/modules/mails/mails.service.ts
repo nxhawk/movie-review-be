@@ -20,7 +20,7 @@ export class MailsService {
         template: options.template,
         context: {
           name: options.context.name,
-          verifyEmailUrl: options.context.verifyEmailUrl,
+          verifyUrl: options.context.verifyUrl,
         },
       });
     } catch (error) {

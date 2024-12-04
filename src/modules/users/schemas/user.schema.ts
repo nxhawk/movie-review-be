@@ -40,6 +40,14 @@ export class User extends AbstractEntity {
   @Prop()
   verifyEmailToken: string;
 
+  @ApiProperty({
+    type: String,
+    example:
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjg1OTQ5MzI0LCJleHAiOjE2ODU5NDkzMjd9.JAFScDSW24LJjlLBrfuB2PxG7f7jaw3NVMgrCDmFjoA',
+  })
+  @Prop()
+  forgotPasswordToken: string;
+
   @Prop()
   refreshToken: string;
 }

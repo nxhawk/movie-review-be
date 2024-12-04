@@ -278,7 +278,7 @@ export class AuthService {
       template: './verify-mail',
       context: {
         name,
-        verifyEmailUrl,
+        verifyUrl: verifyEmailUrl,
       },
     });
   }
