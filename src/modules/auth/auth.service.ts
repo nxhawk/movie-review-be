@@ -17,6 +17,7 @@ import { IOAuthRequest, IUserRequest } from '../../interfaces';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { TokenInvalidException } from '../../exceptions';
 import { MailsService } from '../mails/mails.service';
+import { ResendConfirmEmailDto } from './dto/resend-confirm-email.dto';
 
 @Injectable()
 export class AuthService {
@@ -251,6 +252,36 @@ export class AuthService {
     } catch (error) {
       throw new TokenInvalidException(TOKEN_MESSAGES.TOKEN_IS_INVALID);
     }
+  }
+
+  async resendConfirmEmail(resendConfirmEmailDto: ResendConfirmEmailDto) {
+    const user = await this.findUserByEmail(resendConfirmEmailDto.email);
+
+    if (!user) throw new NotFoundException(USERS_MESSAGES.USER_NOT_FOUND);
+
+    if (user.verify)
+      throw new BadRequestException(USERS_MESSAGES.ACCOUNT_IS_VERIFIED);
+
+    const verifyEmailToken = this.signEmailConfirmToken(user.email);
+
+    await this.sendVerificationLink({
+      email: user.email,
+      name: user.name,
+      token: verifyEmailToken,
+    });
+
+    await this.userModel.updateOne({
+      where: {
+        email: user.email,
+      },
+      data: {
+        verifyEmailToken: verifyEmailToken,
+      },
+    });
+
+    return {
+      message: USERS_MESSAGES.RESEND_CONFIRM_EMAIL_SUCCESSFULLY,
+    };
   }
 
   private sendVerificationLink({

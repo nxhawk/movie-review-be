@@ -31,6 +31,7 @@ import {
 } from '../../guards';
 import { User } from '../users/schemas/user.schema';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { ResendConfirmEmailDto } from './dto/resend-confirm-email.dto';
 
 @ApiTags('Authentication')
 @Controller(ROUTES.AUTH)
@@ -167,6 +168,12 @@ export class AuthController {
   @Get('verify-email')
   findOne(@Query('token') token: string) {
     return this.authService.confirmEmail(token);
+  }
+
+  @Post('resend-confirm-email')
+  @ApiBody({ type: ResendConfirmEmailDto })
+  resendConfirmEmail(@Body() resendConfirmEmailDto: ResendConfirmEmailDto) {
+    return this.authService.resendConfirmEmail(resendConfirmEmailDto);
   }
 
   @ApiBearerAuth()
