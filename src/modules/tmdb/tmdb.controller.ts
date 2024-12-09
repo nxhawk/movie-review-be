@@ -17,4 +17,9 @@ export class TmdbController {
   async getMovieDetails(@Param() { movieId }) {
     return await this.tmdbService.getMovieById(movieId);
   }
+
+  @Get('/movie/:movieId/videos')
+  async getVideosOfMovie(@Param() { movieId }) {
+    return await this.tmdbService.getVideosByMovieId(movieId);
+  }
 }

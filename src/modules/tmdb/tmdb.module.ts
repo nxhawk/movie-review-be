@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
   imports: [
     HttpModule.registerAsync({
       useFactory: async (config: ConfigService) => ({
+        baseURL: config.getOrThrow('tmdb.endpoint'),
         timeout: 30000,
         headers: {
           Authorization: `Bearer ${config.getOrThrow('tmdb.apiKey')}`,
