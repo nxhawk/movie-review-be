@@ -14,12 +14,14 @@ import mailConfig from './configs/mail.config';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { MailsModule } from './modules/mails/mails.module';
+import { TmdbModule } from './modules/tmdb/tmdb.module';
+import tmdbConfig from './configs/tmdb.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [appConfig, authConfig, databaseConfig, mailConfig],
+      load: [appConfig, authConfig, databaseConfig, mailConfig, tmdbConfig],
       cache: true,
       expandVariables: true,
       envFilePath: '.env',
@@ -100,6 +102,7 @@ import { MailsModule } from './modules/mails/mails.module';
     UsersModule,
     AuthModule,
     MailsModule,
+    TmdbModule,
   ],
 })
 export class AppModule {}

@@ -40,3 +40,7 @@ export const TOKEN_MESSAGES = {
   TOKEN_IS_BLACKLIST: 'Token is blacklist',
   TOKEN_IS_INVALID: 'Token is invalid',
 };
+
+export const TMDB_MESSAGES = {
+  INVALID_ID: 'Invalid id: The pre-requisite id is invalid or not found.',
+};

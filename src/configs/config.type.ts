@@ -50,3 +50,8 @@ export type ThrottlerConfig = {
   ttl: string;
   limit: number;
 };
+
+export type TmdbConfig = {
+  apiKey: string;
+  endpoint: string;
+};
