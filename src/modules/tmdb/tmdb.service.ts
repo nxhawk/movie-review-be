@@ -6,6 +6,7 @@ import { TMDB_MESSAGES } from '../../constants/message';
 import { MovieDetailsDto } from './dto/movie-details.dto';
 import { ErrorResourceDto } from './dto/error-resource.dto';
 import { ListVideoDto } from './dto/video.dto';
+import { ListMovieDto } from './dto/movie.dto';
 
 @Injectable()
 export class TmdbService {
@@ -37,6 +38,54 @@ export class TmdbService {
           );
         }),
       ),
+    );
+
+    return data;
+  }
+
+  async getTodayTrending(): Promise<ListMovieDto> {
+    const { data } = await firstValueFrom(
+      this.httpService
+        .get<ListMovieDto>(`/trending/movie/day?language=en-US`)
+        .pipe(
+          catchError((error: AxiosError) => {
+            this.logger.error(error.response.data);
+            throw 'An error happened!';
+          }),
+        ),
+    );
+
+    return data;
+  }
+
+  async getWeeklyTrending(): Promise<ListMovieDto> {
+    const { data } = await firstValueFrom(
+      this.httpService
+        .get<ListMovieDto>(`/trending/movie/week?language=en-US`)
+        .pipe(
+          catchError((error: AxiosError) => {
+            this.logger.error(error.response.data);
+            throw 'An error happened!';
+          }),
+        ),
+    );
+
+    return data;
+  }
+
+  async getMovieByQuery(query): Promise<ListMovieDto> {
+    const page = Number(query['page']) || 1;
+    const search = query['query'] || '';
+
+    const { data } = await firstValueFrom(
+      this.httpService
+        .get<ListMovieDto>(`/search/movie?query=${search}&page=${page}`)
+        .pipe(
+          catchError((error: AxiosError) => {
+            this.logger.error(error.response.data);
+            throw 'An error happened!';
+          }),
+        ),
     );
 
     return data;

@@ -44,3 +44,29 @@ export class MovieDto {
   @ApiProperty({ example: 2574 })
   vote_count: number;
 }
+
+export class ListMovieDto {
+  @ApiProperty({
+    example: 1,
+    description: 'The current page number in the paginated response.',
+  })
+  page: number;
+
+  @ApiProperty({
+    example: 500,
+    description: 'The total number of pages available in the dataset.',
+  })
+  total_pages: number;
+
+  @ApiProperty({
+    example: 10000,
+    description: 'The total number of results available across all pages.',
+  })
+  total_results: number;
+
+  @ApiProperty({
+    type: MovieDto,
+    description: 'The list of movies for the current page.',
+  })
+  results: MovieDto[];
+}
