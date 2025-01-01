@@ -7,18 +7,16 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { MailsService } from '../mails/mails.service';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
-import { InjectModel } from '@nestjs/mongoose';
-import { User } from './schemas/user.schema';
-import { Model } from 'mongoose';
 import { TOKEN_MESSAGES, USERS_MESSAGES } from '../../constants/message';
 import { TokenInvalidException } from '../../exceptions';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { generateHash } from '../../common/utils';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectModel(User.name) private userModel: Model<User>,
+    private prisma: PrismaService,
     private readonly config: ConfigService,
     private readonly jwtService: JwtService,
     private readonly mailsService: MailsService,
@@ -28,7 +26,7 @@ export class UsersService {
     userId,
     email,
   }: {
-    userId: number;
+    userId: string;
     email: string;
   }) {
     return this.jwtService.sign(
@@ -72,8 +70,10 @@ export class UsersService {
   }
 
   async forgotPassword({ email }: ForgotPasswordDto) {
-    const user = await this.userModel.findOne({
-      email,
+    const user = await this.prisma.user.findUnique({
+      where: {
+        email,
+      },
     });
 
     if (!user) throw new NotFoundException(USERS_MESSAGES.USER_NOT_FOUND);
@@ -83,10 +83,14 @@ export class UsersService {
       email: user.email,
     });
 
-    await this.userModel.updateOne(
-      { email },
-      { $set: { forgotPasswordToken: token } },
-    );
+    await this.prisma.user.update({
+      where: {
+        email: email, // Tìm user bằng email
+      },
+      data: {
+        forgotPasswordToken: token, // Cập nhật trường forgotPasswordToken
+      },
+    });
 
     await this.sendForgotPasswordMail({ email, token, name: user.name });
 
@@ -111,8 +115,10 @@ export class UsersService {
         ignoreExpiration: false,
       });
 
-      const user = await this.userModel.findOne({
-        email: payload.email,
+      const user = await this.prisma.user.findUnique({
+        where: {
+          email: payload.email,
+        },
       });
 
       if (!user) throw new NotFoundException(USERS_MESSAGES.USER_NOT_FOUND);
@@ -122,15 +128,15 @@ export class UsersService {
           USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_INVALID,
         );
 
-      await this.userModel.updateOne(
-        { email: user.email },
-        {
-          $set: {
-            password: generateHash(password),
-            forgotPasswordToken: null,
-          },
+      await this.prisma.user.update({
+        where: {
+          email: user.email,
         },
-      );
+        data: {
+          password: generateHash(password),
+          forgotPasswordToken: null,
+        },
+      });
 
       return {
         message: USERS_MESSAGES.RESET_PASSWORD_SUCCESSFUL,

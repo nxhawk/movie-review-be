@@ -3,4 +3,7 @@ export const ROUTES = {
   USERS: 'users',
   MAILS: 'mails',
   TMDB: 'tmdb',
+  FAVORITELIST: 'favorite-list',
+  WATCHLIST: 'watch-list',
+  HEALTH: 'health',
 };

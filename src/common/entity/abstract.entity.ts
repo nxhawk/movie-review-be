@@ -2,10 +2,10 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class AbstractEntity {
   @ApiProperty({
-    type: Number,
-    example: 1,
+    type: String,
+    example: '090909',
   })
-  id: number;
+  id: string;
 
   @ApiProperty({
     type: Date,

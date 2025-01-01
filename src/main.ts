@@ -1,4 +1,4 @@
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { Environment } from './common/enum/node-env';
@@ -12,6 +12,7 @@ import { setupSwagger } from './swagger/setup-swagger';
 import compression from 'compression';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import { HttpExceptionFilter, PrismaClientExceptionFilter } from './filters';
 
 async function bootstrap(): Promise<NestExpressApplication> {
   const app = await NestFactory.create<NestExpressApplication>(
@@ -47,6 +48,15 @@ async function bootstrap(): Promise<NestExpressApplication> {
       transform: true, // Automatically transform payloads to DTO instances
       exceptionFactory: (errors) => new UnprocessableEntityException(errors),
     }),
+  );
+
+  const { httpAdapter } = app.get(HttpAdapterHost);
+  const reflector = app.get(Reflector);
+
+  app.useGlobalFilters(
+    new HttpExceptionFilter(reflector),
+
+    new PrismaClientExceptionFilter(httpAdapter),
   );
 
   app.useGlobalInterceptors(new LoggerErrorInterceptor());

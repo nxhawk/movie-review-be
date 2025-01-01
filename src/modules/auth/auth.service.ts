@@ -8,8 +8,6 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { RegisterDto } from './dto/register.dto';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import { User } from '../users/schemas/user.schema';
 import { TOKEN_MESSAGES, USERS_MESSAGES } from '../../constants/message';
 import { generateHash, validateHash } from '../../common/utils';
@@ -18,12 +16,14 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { TokenInvalidException } from '../../exceptions';
 import { MailsService } from '../mails/mails.service';
 import { ResendConfirmEmailDto } from './dto/resend-confirm-email.dto';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
+import { omit } from 'lodash';
 
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
   constructor(
-    @InjectModel(User.name) private userModel: Model<User>,
+    private prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly config: ConfigService,
     private readonly mailsService: MailsService,
@@ -47,10 +47,12 @@ export class AuthService {
       token: verifyEmailToken,
     });
 
-    await this.userModel.create({
-      ...registerDto,
-      password: securedPassword,
-      verifyEmailToken,
+    await this.prisma.user.create({
+      data: {
+        ...registerDto,
+        password: securedPassword,
+        verifyEmailToken,
+      },
     });
 
     return {
@@ -99,14 +101,16 @@ export class AuthService {
     const email = profile.emails[0].value;
     const existingUser = await this.findUserByEmail(email);
 
-    let user: { email: string; userId: number };
+    let user: { email: string; userId: string };
 
     if (!existingUser) {
       const securedPassword = generateHash('password123');
-      const newUser = await this.userModel.create({
-        name: profile.displayName,
-        email,
-        password: securedPassword,
+      const newUser = await this.prisma.user.create({
+        data: {
+          name: profile.displayName,
+          email,
+          password: securedPassword,
+        },
       });
 
       user = {
@@ -142,14 +146,16 @@ export class AuthService {
     const email = profile.emails[0].value;
     const existingUser = await this.findUserByEmail(email);
 
-    let user: { email: string; userId: number };
+    let user: { email: string; userId: string };
 
     if (!existingUser) {
       const securedPassword = generateHash('password123');
-      const newUser = await this.userModel.create({
-        name: `${profile.name.familyName} ${profile.name.middleName} ${profile.name.givenName}`,
-        email,
-        password: securedPassword,
+      const newUser = await this.prisma.user.create({
+        data: {
+          name: `${profile.name.familyName} ${profile.name.middleName} ${profile.name.givenName}`,
+          email: email, // Email từ biến
+          password: securedPassword, // Mật khẩu đã mã hóa
+        },
       });
 
       user = {
@@ -183,7 +189,7 @@ export class AuthService {
   async refreshToken(refreshTokenDto: RefreshTokenDto) {
     try {
       const payload: {
-        id: number;
+        id: string;
         email: string;
       } = this.jwtService.verify(refreshTokenDto.refreshToken, {
         secret: this.config.getOrThrow<string>('auth.refreshTokenSecret'),
@@ -227,8 +233,10 @@ export class AuthService {
         ignoreExpiration: false,
       });
 
-      const user = await this.userModel.findOne({
-        email: payload.email,
+      const user = await this.prisma.user.findUnique({
+        where: {
+          email: payload.email,
+        },
       });
 
       if (!user) throw new NotFoundException(USERS_MESSAGES.USER_NOT_FOUND);
@@ -236,15 +244,15 @@ export class AuthService {
       if (user.verify)
         throw new BadRequestException(USERS_MESSAGES.ACCOUNT_IS_VERIFIED);
 
-      await this.userModel.updateOne(
-        { email: payload.email },
-        {
-          $set: {
-            verify: true,
-            verifyEmailToken: null,
-          },
+      await this.prisma.user.update({
+        where: {
+          email: payload.email,
         },
-      );
+        data: {
+          verify: true,
+          verifyEmailToken: null,
+        },
+      });
 
       return {
         message: USERS_MESSAGES.VERIFY_EMAIL_SUCCESSFULLY,
@@ -270,7 +278,7 @@ export class AuthService {
       token: verifyEmailToken,
     });
 
-    await this.userModel.updateOne({
+    await this.prisma.user.update({
       where: {
         email: user.email,
       },
@@ -319,7 +327,7 @@ export class AuthService {
     email,
     verifyStatus,
   }: {
-    userId: number;
+    userId: string;
     email: string;
     verifyStatus: boolean;
   }) {
@@ -339,7 +347,7 @@ export class AuthService {
     email,
     verifyStatus,
   }: {
-    userId: number;
+    userId: string;
     email: string;
     verifyStatus: boolean;
   }) {
@@ -355,8 +363,10 @@ export class AuthService {
   }
 
   private async isEmailTaken(email: string): Promise<boolean> {
-    const existingUser = await this.userModel.findOne({
-      email,
+    const existingUser = await this.prisma.user.findUnique({
+      where: {
+        email,
+      },
     });
 
     return Boolean(existingUser);
@@ -365,26 +375,29 @@ export class AuthService {
   private async updateRefreshToken(userId: string, refreshToken: string) {
     const hashedRefreshToken = await generateHash(refreshToken);
 
-    await this.userModel.findByIdAndUpdate(
-      userId,
-      {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
         refreshToken: hashedRefreshToken,
       },
-      { new: true },
-    );
+    });
   }
 
-  async findUserByEmail(email: string): Promise<User> {
-    const existingUser = await this.userModel.findOne({
-      email,
+  async findUserByEmail(email: string) {
+    const existingUser = await this.prisma.user.findUnique({
+      where: {
+        email,
+      },
     });
 
     return existingUser;
   }
 
   async validateUser(email: string, password: string) {
-    const user = await this.userModel.findOne({
-      email,
+    const user = await this.prisma.user.findUnique({
+      where: {
+        email,
+      },
     });
 
     if (!user)
@@ -403,18 +416,30 @@ export class AuthService {
   }
 
   async getMe(email: string) {
-    const user = await this.userModel.findOne(
-      {
+    const user = await this.prisma.user.findUnique({
+      where: {
         email,
       },
-      { password: 0 },
-    );
+    });
 
-    return user;
+    return omit(user, [
+      'password',
+      'verifyEmailToken',
+      'forgotPasswordToken',
+      'verify',
+      'refreshToken',
+    ]);
   }
 
   async logout(email: string) {
-    await this.userModel.updateOne({ email }, { $set: { refreshToken: null } });
+    await this.prisma.user.update({
+      where: {
+        email,
+      },
+      data: {
+        refreshToken: null,
+      },
+    });
 
     return {
       message: USERS_MESSAGES.LOGOUT_SUCCESSFUL,

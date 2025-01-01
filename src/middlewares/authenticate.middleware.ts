@@ -10,14 +10,14 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { TOKEN_MESSAGES, USERS_MESSAGES } from '../constants/message';
 import { TokenInvalidException } from '../exceptions';
-import { AuthService } from '../modules/auth/auth.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 
 @Injectable()
 export class AuthenticateMiddleware implements NestMiddleware {
   constructor(
     private readonly config: ConfigService,
     private jwtService: JwtService,
-    private readonly authService: AuthService,
+    private readonly prisma: PrismaService,
   ) {}
   async use(req: Request, res: Response, next: NextFunction) {
     const authHeader = req.headers.authorization;
@@ -46,7 +46,11 @@ export class AuthenticateMiddleware implements NestMiddleware {
       throw new UnauthorizedException(TOKEN_MESSAGES.TOKEN_IS_EXPIRED);
     }
 
-    const user = await this.authService.findUserByEmail(payload.email);
+    const user = await this.prisma.user.findUnique({
+      where: {
+        email: payload.email,
+      },
+    });
 
     if (!user) {
       throw new BadRequestException(USERS_MESSAGES.USER_NOT_FOUND);

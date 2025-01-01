@@ -15,7 +15,11 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
 import { MailerModule } from '@nestjs-modules/mailer';
 import { MailsModule } from './modules/mails/mails.module';
 import { TmdbModule } from './modules/tmdb/tmdb.module';
+import { WatchListModule } from './modules/watch-list/watch-list.module';
+import { FavoriteListModule } from './modules/favorite-list/favorite-list.module';
+import { HealthModule } from './modules/health/health.module';
 import tmdbConfig from './configs/tmdb.config';
+import { PrismaModule } from './shared/prisma/prisma.module';
 
 @Module({
   imports: [
@@ -99,10 +103,14 @@ import tmdbConfig from './configs/tmdb.config';
       }),
       inject: [ConfigService],
     }),
+    PrismaModule,
     UsersModule,
     AuthModule,
     MailsModule,
     TmdbModule,
+    WatchListModule,
+    FavoriteListModule,
+    HealthModule,
   ],
 })
 export class AppModule {}
