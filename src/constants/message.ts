@@ -44,3 +44,9 @@ export const TOKEN_MESSAGES = {
 export const TMDB_MESSAGES = {
   INVALID_ID: 'Invalid id: The pre-requisite id is invalid or not found.',
 };
+
+export const FAVORITE_MESSAGES = {
+  ADD_FAVORITE_SUCCESSFULLY: 'Add favorite successfully',
+  DELETE_FAVORITE_SUCCESSFULLY: 'Delete favorite successfully',
+  MOVIE_ALREADY_IN_FAVORITE: 'Movie already in favorite',
+};

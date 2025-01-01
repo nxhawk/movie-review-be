@@ -1,4 +1,9 @@
-import { Module } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { LoggerModule } from 'nestjs-pino';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Environment } from './common/enum/node-env';
@@ -20,6 +25,7 @@ import { FavoriteListModule } from './modules/favorite-list/favorite-list.module
 import { HealthModule } from './modules/health/health.module';
 import tmdbConfig from './configs/tmdb.config';
 import { PrismaModule } from './shared/prisma/prisma.module';
+import { AuthenticateMiddleware } from './middlewares';
 
 @Module({
   imports: [
@@ -113,4 +119,32 @@ import { PrismaModule } from './shared/prisma/prisma.module';
     HealthModule,
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(AuthenticateMiddleware)
+      .exclude(
+        {
+          path: 'auth/(.*)',
+          method: RequestMethod.ALL,
+        },
+        {
+          path: 'health',
+          method: RequestMethod.GET,
+        },
+        {
+          path: 'users/forgot-password',
+          method: RequestMethod.POST,
+        },
+        {
+          path: 'users/verify/forgot-password',
+          method: RequestMethod.GET,
+        },
+        {
+          path: 'users/reset-password',
+          method: RequestMethod.POST,
+        },
+      )
+      .forRoutes('*');
+  }
+}
