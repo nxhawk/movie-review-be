@@ -1,3 +1,16 @@
+# How to run
+
+```bash
+npm install
+npx prisma generate
+npm run start:dev
+```
+
+# How to generate data with your database mongoose (optional)
+```bash
+npm run seed
+```
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
 </p>

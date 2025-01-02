@@ -56,3 +56,44 @@ model WatchList {
 
   @@map("watchlists")
 }
+
+model Movie {
+  id                 String              @id @default(auto()) @map("_id") @db.ObjectId
+  adult              Boolean
+  backdropPath       String?             @map("backdrop_path")
+  budget             Int
+  categories         String[]
+  tmdb_id            Int                 @unique @map("id")
+  originalLanguage   String              @map("original_language")
+  originalTitle      String              @map("original_title")
+  overview           String?
+  popularity         Float
+  posterPath         String?             @map("poster_path")
+  releaseDate        String              @map("release_date")
+  revenue            Int
+  runtime            Int?
+  status             String
+  tagline            String?
+  title              String
+  video              Boolean
+  voteAverage        Float               @map("vote_average")
+  voteCount          Int                 @map("vote_count")
+  
+  genreIDs           String[]   @db.ObjectId
+  genres             Genre[]    @relation(fields: [genreIDs], references: [id])
+
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+}
+
+model Genre {
+  id      String  @id @default(auto()) @map("_id") @db.ObjectId
+  name    String
+  tmdb_id Int  @unique @map("id")
+
+  movieIDs     String[]   @db.ObjectId
+  movies       Movie[]    @relation(fields: [movieIDs], references: [id])
+
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+}
