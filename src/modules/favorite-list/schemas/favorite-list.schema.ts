@@ -19,22 +19,6 @@ export class FavoriteList extends AbstractEntity {
   })
   @Prop({ type: [MovieDto], default: [] })
   movies: MovieDto[];
-
-  @ApiProperty({
-    type: Date,
-    example: '2024-12-31T10:00:00.000Z',
-    description: 'The date and time when the favorite list was last updated.',
-  })
-  @Prop({ default: Date.now })
-  updatedAt: Date;
-
-  @ApiProperty({
-    type: Date,
-    example: '2024-12-01T10:00:00.000Z',
-    description: 'The date and time when the favorite list was created.',
-  })
-  @Prop({ default: Date.now })
-  createdAt: Date;
 }
 
 export const FavoriteListSchema = SchemaFactory.createForClass(FavoriteList);

@@ -50,3 +50,14 @@ export const FAVORITE_MESSAGES = {
   DELETE_FAVORITE_SUCCESSFULLY: 'Delete favorite successfully',
   MOVIE_ALREADY_IN_FAVORITE: 'Movie already in favorite',
 };
+
+export const WATCHLIST_MESSAGES = {
+  CREATE_WATCHLIST_SUCCESSFULLY: 'Create new watch list successfully',
+  ADD_WATCHLIST_SUCCESSFULLY: 'Add watch list successfully',
+  DELETE_WATCHLIST_SUCCESSFULLY: 'Delete watch list successfully',
+  REMOVE_MOVIE_FROM_WATCHLIST_SUCCESSFULLY:
+    'Remove movie from watch list successfully',
+  MOVIE_ALREADY_IN_WATCHLIST: 'Movie already in watch list',
+  WATCHLIST_ALREADY_EXISTS: 'Watch list already exists',
+  WATCHLIST_DOES_NOT_EXIST: 'Watch list does not exist',
+};

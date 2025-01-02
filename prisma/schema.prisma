@@ -23,6 +23,7 @@ model User {
 
   // relationships
   favoriteLists           FavoriteList?
+  watchLists              WatchList[]   
 
   @@map("users")
 }
@@ -42,10 +43,16 @@ model FavoriteList {
 }
 
 model WatchList {
-  id            String       @id @default(auto()) @map("_id") @db.ObjectId
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  userId        String      @db.ObjectId
+  movies        String[]    @default([])
 
-  createdAt     DateTime     @default(now()) @map("created_at")
-  updatedAt     DateTime     @updatedAt @map("updated_at")
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+
+  // relationships
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("watchlists")
 }

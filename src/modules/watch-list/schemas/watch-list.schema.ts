@@ -14,27 +14,19 @@ export class WatchList extends AbstractEntity {
   userId: string;
 
   @ApiProperty({
+    type: String,
+    example: 'Summer Movies',
+    description: 'Name of the watch list.',
+  })
+  @Prop({ required: true })
+  name: string;
+
+  @ApiProperty({
     type: [MovieDto],
     description: 'List of movies the user intends to watch.',
   })
   @Prop({ type: [MovieDto], default: [] })
   movies: MovieDto[];
-
-  @ApiProperty({
-    type: Date,
-    example: '2024-12-31T10:00:00.000Z',
-    description: 'The date and time when the watch list was last updated.',
-  })
-  @Prop({ default: Date.now })
-  updatedAt: Date;
-
-  @ApiProperty({
-    type: Date,
-    example: '2024-12-01T10:00:00.000Z',
-    description: 'The date and time when the watch list was created.',
-  })
-  @Prop({ default: Date.now })
-  createdAt: Date;
 }
 
 export const WatchListSchema = SchemaFactory.createForClass(WatchList);
