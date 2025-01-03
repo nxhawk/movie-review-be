@@ -9,20 +9,18 @@ datasource db {
 }
 
 model User {
-  id                      String    @id @default(auto()) @map("_id") @db.ObjectId
-  email                   String    @unique(map: "email_1")
+  id                      String            @id @default(auto()) @map("_id") @db.ObjectId
+  email                   String            @unique(map: "email_1")
   forgotPasswordToken     String?
   name                    String
   password                String
   refreshToken            String?
-  verify                  Boolean   @default(false)
+  verify                  Boolean           @default(false)
   verifyEmailToken        String?
-
-  createdAt               DateTime  @default(now()) @map("created_at")
-  updatedAt               DateTime  @updatedAt @map("updated_at")
 
   // relationships
   favoriteLists           FavoriteList?
+
   watchLists              WatchList[]   
 
   @@map("users")
@@ -79,21 +77,313 @@ model Movie {
   voteAverage        Float               @map("vote_average")
   voteCount          Int                 @map("vote_count")
   
-  genreIDs           String[]   @db.ObjectId
-  genres             Genre[]    @relation(fields: [genreIDs], references: [id])
-
-  createdAt     DateTime    @default(now()) @map("created_at")
-  updatedAt     DateTime    @updatedAt @map("updated_at")
+  // relationships
+  genreIDs           String[]            @db.ObjectId
+  genres             Genre[]             @relation(fields: [genreIDs], references: [id])
+  
+  credits            Credit?
 }
 
 model Genre {
-  id      String  @id @default(auto()) @map("_id") @db.ObjectId
-  name    String
-  tmdb_id Int  @unique @map("id")
+  id                      String              @id @default(auto()) @map("_id") @db.ObjectId
+  name                    String
+  tmdb_id                 Int                 @unique @map("id")
 
-  movieIDs     String[]   @db.ObjectId
-  movies       Movie[]    @relation(fields: [movieIDs], references: [id])
+  // relationships
+  movieIDs                String[]            @db.ObjectId
+  movies                  Movie[]             @relation(fields: [movieIDs], references: [id])
 
-  createdAt     DateTime    @default(now()) @map("created_at")
-  updatedAt     DateTime    @updatedAt @map("updated_at")
+  movieCastIDs            String[]            @db.ObjectId
+  moviesCast              MovieCast[]         @relation(fields: [movieCastIDs], references: [id])
+
+  movieCrewIDs            String[]            @db.ObjectId
+  moviesCrew              MovieCrew[]         @relation(fields: [movieCrewIDs], references: [id])
+
+  nowPlayingMovieIDs      String[]            @db.ObjectId
+  nowPlayingMovies        NowPlayingMovie[]   @relation(fields: [nowPlayingMovieIDs], references: [id])
+
+  popularMovieIDs         String[]            @db.ObjectId
+  popularMovies           PopularMovie[]      @relation(fields: [popularMovieIDs], references: [id])
+
+  topRatedMovieIDs        String[]            @db.ObjectId
+  topRatedMovies          TopRatedMovie[]     @relation(fields: [topRatedMovieIDs], references: [id])
+
+  trendingDayMovieIDs     String[]            @db.ObjectId
+  trendingDayMovies       TrendingDayMovie[]  @relation(fields: [trendingDayMovieIDs], references: [id])
+
+  trendingWeekMovieIDs    String[]            @db.ObjectId
+  trendingWeekMovies      TrendingWeekMovie[] @relation(fields: [trendingWeekMovieIDs], references: [id])
+
+  upcomingMovieIDs     String[]            @db.ObjectId
+  upcomingMovies       UpcomingMovie[]  @relation(fields: [upcomingMovieIDs], references: [id])
+}
+
+model Cast {
+  id                  String              @id @default(auto()) @map("_id") @db.ObjectId
+  adult               Boolean
+  gender              Int
+  tmdb_id             Int                 @unique @map("id")
+  knownForDepartment  String?             @map("known_for_department")
+  name                String              
+  originalName        String              @map("original_name")
+  popularity          Float
+  profilePath         String?             @map("profile_path")
+  cast_id             Int              
+  character           String
+  credit_id           String
+  order               Int
+
+  // relationships
+  creditIDs     String[]                  @db.ObjectId
+  credits       Credit[]                  @relation(fields: [creditIDs], references: [id])
+}
+
+model Crew {
+  id                  String              @id @default(auto()) @map("_id") @db.ObjectId
+  adult               Boolean
+  gender              Int
+  tmdb_id             Int                 @unique @map("id")
+  knownForDepartment  String?             @map("known_for_department")
+  name                String              
+  originalName        String              @map("original_name")
+  popularity          Float
+  profilePath         String?             @map("profile_path")
+  credit_id           String
+  department          String
+  job                 String
+
+  // relationships
+  creditIDs     String[]                  @db.ObjectId
+  credits       Credit[]                  @relation(fields: [creditIDs], references: [id])
+}
+
+model Credit {
+  id                  String      @id @default(auto()) @map("_id") @db.ObjectId
+  tmdb_id             Int         @unique @map("id")
+  
+  // relationships
+  castIDs             String[]    @db.ObjectId
+  casts               Cast[]      @relation(fields: [castIDs], references: [id])
+
+  crewIDs             String[]    @db.ObjectId
+  crews               Crew[]      @relation(fields: [crewIDs], references: [id])
+
+  movie               Movie       @relation(fields: [movieId], references: [id])
+  movieId             String      @db.ObjectId @unique
+}
+
+// Person
+model Person {
+  id                  String             @id @default(auto()) @map("_id") @db.ObjectId
+  adult               Boolean
+  alsoKnownAs         String[]           @map("also_known_as")
+  biography           String
+  birthday            String?
+  deathday            String?
+  gender              Int
+  tmdb_id             Int                 @unique @map("id")
+  knownForDepartment  String?             @map("known_for_department")
+  name                String
+  placeOfBirth        String?             @map("place_of_birth")
+  popularity          Float
+  profilePath         String?             @map("profile_path")
+
+  movie_credits       MovieCredit?
+}
+
+model MovieCast {
+  id                  String              @id @default(auto()) @map("_id") @db.ObjectId
+  adult               Boolean
+  backdropPath        String?             @map("backdrop_path")
+  tmdb_id             Int                 @unique @map("id")
+  originalLanguage    String              @map("original_language")
+  originalTitle       String              @map("original_title")
+  overview            String
+  popularity          Float
+  profilePath         String?             @map("profile_path")
+  releaseDate         String              @map("release_date")
+  title               String
+  video               Boolean
+  voteAverage         Float               @map("vote_average")
+  voteCount           Int                 @map("vote_count")
+  character           String
+  credit_id           String
+  order               Int
+
+  // genres
+  genreIDs           String[]             @db.ObjectId
+  genres             Genre[]              @relation(fields: [genreIDs], references: [id])
+
+  creditIDs          String[]             @db.ObjectId
+  credits            MovieCredit[]        @relation(fields: [creditIDs], references: [id])
+}
+
+model MovieCrew {
+  id                  String              @id @default(auto()) @map("_id") @db.ObjectId
+  adult               Boolean
+  backdropPath        String?             @map("backdrop_path")
+  tmdb_id             Int                 @unique @map("id")
+  originalLanguage    String              @map("original_language")
+  originalTitle       String              @map("original_title")
+  overview            String
+  popularity          Float
+  profilePath         String?             @map("profile_path")
+  releaseDate         String              @map("release_date")
+  title               String
+  video               Boolean
+  voteAverage         Float               @map("vote_average")
+  voteCount           Int                 @map("vote_count")
+  credit_id           String
+  department          String
+  job                 String
+
+  // genres
+  genreIDs           String[]             @db.ObjectId
+  genres             Genre[]              @relation(fields: [genreIDs], references: [id])
+
+  creditIDs     String[]                  @db.ObjectId
+  credits       MovieCredit[]             @relation(fields: [creditIDs], references: [id])
+}
+
+model MovieCredit {
+  id                  String          @id @default(auto()) @map("_id") @db.ObjectId
+  tmdb_id             Int             @unique @map("id")
+  
+  // relationships
+  castIDs             String[]        @db.ObjectId
+  casts               MovieCast[]     @relation(fields: [castIDs], references: [id])
+
+  crewIDs             String[]        @db.ObjectId
+  crews               MovieCrew[]     @relation(fields: [crewIDs], references: [id])
+
+  person              Person          @relation(fields: [personId], references: [id])
+  personId            String          @db.ObjectId @unique
+}
+
+model NowPlayingMovie {
+  id                  String              @id @default(auto()) @map("_id") @db.ObjectId
+  adult               Boolean
+  backdropPath        String?             @map("backdrop_path")
+  tmdb_id             Int                 @unique @map("id")
+  originalLanguage    String              @map("original_language")
+  originalTitle       String              @map("original_title")
+  overview            String
+  popularity          Float
+  posterPath          String?             @map("poster_path")
+  releaseDate         String              @map("release_date")
+  title               String
+  video               Boolean
+  voteAverage         Float               @map("vote_average")
+  voteCount           Int                 @map("vote_count")
+  
+  // genres
+  genreIDs           String[]             @db.ObjectId
+  genres             Genre[]              @relation(fields: [genreIDs], references: [id])
+}
+
+model PopularMovie {
+  id                  String              @id @default(auto()) @map("_id") @db.ObjectId
+  adult               Boolean
+  backdropPath        String?             @map("backdrop_path")
+  tmdb_id             Int                 @unique @map("id")
+  originalLanguage    String              @map("original_language")
+  originalTitle       String              @map("original_title")
+  overview            String
+  popularity          Float
+  posterPath          String?             @map("poster_path")
+  releaseDate         String              @map("release_date")
+  title               String
+  video               Boolean
+  voteAverage         Float               @map("vote_average")
+  voteCount           Int                 @map("vote_count")
+  
+  // genres
+  genreIDs           String[]             @db.ObjectId
+  genres             Genre[]              @relation(fields: [genreIDs], references: [id])
+}
+
+model TopRatedMovie {
+  id                  String              @id @default(auto()) @map("_id") @db.ObjectId
+  adult               Boolean
+  backdropPath        String?             @map("backdrop_path")
+  tmdb_id             Int                 @unique @map("id")
+  originalLanguage    String              @map("original_language")
+  originalTitle       String              @map("original_title")
+  overview            String
+  popularity          Float
+  posterPath          String?             @map("poster_path")
+  releaseDate         String              @map("release_date")
+  title               String
+  video               Boolean
+  voteAverage         Float               @map("vote_average")
+  voteCount           Int                 @map("vote_count")
+  
+  // genres
+  genreIDs           String[]             @db.ObjectId
+  genres             Genre[]              @relation(fields: [genreIDs], references: [id])
+}
+
+model TrendingDayMovie {
+  id                  String              @id @default(auto()) @map("_id") @db.ObjectId
+  adult               Boolean
+  backdropPath        String?             @map("backdrop_path")
+  tmdb_id             Int                 @unique @map("id")
+  mediaType           String              @map("media_type")
+  originalLanguage    String              @map("original_language")
+  originalTitle       String              @map("original_title")
+  overview            String
+  popularity          Float
+  posterPath          String?             @map("poster_path")
+  releaseDate         String              @map("release_date")
+  title               String
+  video               Boolean
+  voteAverage         Float               @map("vote_average")
+  voteCount           Int                 @map("vote_count")
+  
+  // genres
+  genreIDs           String[]             @db.ObjectId
+  genres             Genre[]              @relation(fields: [genreIDs], references: [id])
+}
+
+model TrendingWeekMovie {
+  id                  String              @id @default(auto()) @map("_id") @db.ObjectId
+  adult               Boolean
+  backdropPath        String?             @map("backdrop_path")
+  tmdb_id             Int                 @unique @map("id")
+  mediaType           String              @map("media_type")
+  originalLanguage    String              @map("original_language")
+  originalTitle       String              @map("original_title")
+  overview            String
+  popularity          Float
+  posterPath          String?             @map("poster_path")
+  releaseDate         String              @map("release_date")
+  title               String
+  video               Boolean
+  voteAverage         Float               @map("vote_average")
+  voteCount           Int                 @map("vote_count")
+  
+  // genres
+  genreIDs           String[]             @db.ObjectId
+  genres             Genre[]              @relation(fields: [genreIDs], references: [id])
+}
+
+model UpcomingMovie {
+  id                  String              @id @default(auto()) @map("_id") @db.ObjectId
+  adult               Boolean
+  backdropPath        String?             @map("backdrop_path")
+  tmdb_id             Int                 @unique @map("id")
+  originalLanguage    String              @map("original_language")
+  originalTitle       String              @map("original_title")
+  overview            String
+  popularity          Float
+  posterPath          String?             @map("poster_path")
+  releaseDate         String              @map("release_date")
+  title               String
+  video               Boolean
+  voteAverage         Float               @map("vote_average")
+  voteCount           Int                 @map("vote_count")
+  
+  // genres
+  genreIDs           String[]             @db.ObjectId
+  genres             Genre[]              @relation(fields: [genreIDs], references: [id])
 }

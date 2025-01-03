@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { readFile } from 'fs/promises';
+import { generatePersonCredit } from './person-credit';
 
 const prisma = new PrismaClient();
 
@@ -8,9 +9,12 @@ export const generateMovie = async () => {
 
   const jsonData = await readFile('prisma/json/tmdb_db.movies_2.json', 'utf-8')
     .then((json) => JSON.parse(json))
-    .catch(() => console.error('Error reading file'));
+    .catch((e) => {
+      throw new Error(e.message);
+    });
 
   for (const movie of jsonData) {
+    // first, upsert movie
     await prisma.movie.upsert({
       where: { tmdb_id: movie.tmdb_id },
       update: {},
@@ -19,7 +23,7 @@ export const generateMovie = async () => {
         backdropPath: movie.backdrop_path,
         budget: movie.budget,
         categories: movie.categories.map((category) => category),
-        tmdb_id: movie.id,
+        tmdb_id: movie.tmdb_id,
         originalLanguage: movie.original_language,
         originalTitle: movie.original_title,
         overview: movie.overview,
@@ -39,7 +43,11 @@ export const generateMovie = async () => {
         },
       },
     });
+
+    await generatePersonCredit(movie.credits, movie.tmdb_id);
   }
+
+  // second, upsert credits (cast, crew)
 
   console.log('Movies generated');
   console.log('------------------------------');
