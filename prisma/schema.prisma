@@ -114,8 +114,8 @@ model Genre {
   trendingWeekMovieIDs    String[]            @db.ObjectId
   trendingWeekMovies      TrendingWeekMovie[] @relation(fields: [trendingWeekMovieIDs], references: [id])
 
-  upcomingMovieIDs     String[]            @db.ObjectId
-  upcomingMovies       UpcomingMovie[]  @relation(fields: [upcomingMovieIDs], references: [id])
+  upcomingMovieIDs        String[]            @db.ObjectId
+  upcomingMovies          UpcomingMovie[]  @relation(fields: [upcomingMovieIDs], references: [id])
 }
 
 model Cast {
@@ -134,8 +134,8 @@ model Cast {
   order               Int
 
   // relationships
-  creditIDs     String[]                  @db.ObjectId
-  credits       Credit[]                  @relation(fields: [creditIDs], references: [id])
+  creditIDs           String[]                  @db.ObjectId
+  credits             Credit[]                  @relation(fields: [creditIDs], references: [id])
 }
 
 model Crew {
@@ -153,8 +153,8 @@ model Crew {
   job                 String
 
   // relationships
-  creditIDs     String[]                  @db.ObjectId
-  credits       Credit[]                  @relation(fields: [creditIDs], references: [id])
+  creditIDs           String[]                  @db.ObjectId
+  credits             Credit[]                  @relation(fields: [creditIDs], references: [id])
 }
 
 model Credit {
@@ -211,11 +211,11 @@ model MovieCast {
   order               Int
 
   // genres
-  genreIDs           String[]             @db.ObjectId
-  genres             Genre[]              @relation(fields: [genreIDs], references: [id])
+  genreIDs            String[]             @db.ObjectId
+  genres              Genre[]              @relation(fields: [genreIDs], references: [id])
 
-  creditIDs          String[]             @db.ObjectId
-  credits            MovieCredit[]        @relation(fields: [creditIDs], references: [id])
+  creditIDs           String[]             @db.ObjectId
+  credits             MovieCredit[]        @relation(fields: [creditIDs], references: [id])
 }
 
 model MovieCrew {
@@ -238,11 +238,11 @@ model MovieCrew {
   job                 String
 
   // genres
-  genreIDs           String[]             @db.ObjectId
-  genres             Genre[]              @relation(fields: [genreIDs], references: [id])
+  genreIDs            String[]             @db.ObjectId
+  genres              Genre[]              @relation(fields: [genreIDs], references: [id])
 
-  creditIDs     String[]                  @db.ObjectId
-  credits       MovieCredit[]             @relation(fields: [creditIDs], references: [id])
+  creditIDs           String[]                  @db.ObjectId
+  credits             MovieCredit[]             @relation(fields: [creditIDs], references: [id])
 }
 
 model MovieCredit {
@@ -277,8 +277,8 @@ model NowPlayingMovie {
   voteCount           Int                 @map("vote_count")
   
   // genres
-  genreIDs           String[]             @db.ObjectId
-  genres             Genre[]              @relation(fields: [genreIDs], references: [id])
+  genreIDs            String[]             @db.ObjectId
+  genres              Genre[]              @relation(fields: [genreIDs], references: [id])
 }
 
 model PopularMovie {
@@ -298,8 +298,8 @@ model PopularMovie {
   voteCount           Int                 @map("vote_count")
   
   // genres
-  genreIDs           String[]             @db.ObjectId
-  genres             Genre[]              @relation(fields: [genreIDs], references: [id])
+  genreIDs            String[]             @db.ObjectId
+  genres              Genre[]              @relation(fields: [genreIDs], references: [id])
 }
 
 model TopRatedMovie {
@@ -319,8 +319,8 @@ model TopRatedMovie {
   voteCount           Int                 @map("vote_count")
   
   // genres
-  genreIDs           String[]             @db.ObjectId
-  genres             Genre[]              @relation(fields: [genreIDs], references: [id])
+  genreIDs            String[]             @db.ObjectId
+  genres              Genre[]              @relation(fields: [genreIDs], references: [id])
 }
 
 model TrendingDayMovie {
@@ -341,8 +341,8 @@ model TrendingDayMovie {
   voteCount           Int                 @map("vote_count")
   
   // genres
-  genreIDs           String[]             @db.ObjectId
-  genres             Genre[]              @relation(fields: [genreIDs], references: [id])
+  genreIDs            String[]             @db.ObjectId
+  genres              Genre[]              @relation(fields: [genreIDs], references: [id])
 }
 
 model TrendingWeekMovie {
@@ -363,8 +363,8 @@ model TrendingWeekMovie {
   voteCount           Int                 @map("vote_count")
   
   // genres
-  genreIDs           String[]             @db.ObjectId
-  genres             Genre[]              @relation(fields: [genreIDs], references: [id])
+  genreIDs            String[]             @db.ObjectId
+  genres              Genre[]              @relation(fields: [genreIDs], references: [id])
 }
 
 model UpcomingMovie {
@@ -384,6 +384,6 @@ model UpcomingMovie {
   voteCount           Int                 @map("vote_count")
   
   // genres
-  genreIDs           String[]             @db.ObjectId
-  genres             Genre[]              @relation(fields: [genreIDs], references: [id])
+  genreIDs            String[]             @db.ObjectId
+  genres              Genre[]              @relation(fields: [genreIDs], references: [id])
 }

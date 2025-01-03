@@ -5,6 +5,17 @@ import { Expose } from './prisma.interface';
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
+  constructor() {
+    super({
+      log: [
+        {
+          emit: 'stdout',
+          level: 'error',
+        },
+      ],
+    });
+  }
+
   async onModuleInit() {
     await this.$connect();
   }
