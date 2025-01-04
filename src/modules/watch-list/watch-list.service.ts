@@ -11,6 +11,9 @@ export class WatchListService {
       where: {
         userId,
       },
+      include: {
+        movies: true,
+      },
     });
 
     return allWatchList ? allWatchList : [];
@@ -51,7 +54,9 @@ export class WatchListService {
       throw new BadRequestException('Watch list does not exist');
     }
 
-    const existingMovie = watchList.movies.find((movie) => movie === movieId);
+    const existingMovie = watchList.movies.find(
+      (movie) => movie.tmdb_id === parseInt(movieId),
+    );
     if (existingMovie) {
       throw new BadRequestException('Movie already exists in the watch list');
     }
@@ -61,7 +66,9 @@ export class WatchListService {
         id: watchListId,
       },
       data: {
-        movies: [...watchList.movies, movieId],
+        movies: {
+          connect: { tmdb_id: parseInt(movieId) },
+        },
       },
     });
 
@@ -87,7 +94,9 @@ export class WatchListService {
         id: watchListId,
       },
       data: {
-        movies: watchList.movies.filter((id) => id !== movieId),
+        movies: {
+          disconnect: { tmdb_id: parseInt(movieId) },
+        },
       },
     });
 

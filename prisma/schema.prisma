@@ -23,36 +23,76 @@ model User {
 
   watchLists              WatchList[]   
 
+  histories               History?
+
+  ratings                 Rating[]
+
   @@map("users")
 }
 
 model FavoriteList {
-  id          String      @id @default(auto()) @map("_id") @db.ObjectId
-  userId      String      @db.ObjectId @unique
-  movies      String[]    @default([])
+  id                      String      @id @default(auto()) @map("_id") @db.ObjectId
+  userId                  String      @db.ObjectId @unique
 
-  createdAt   DateTime    @default(now()) @map("created_at")
-  updatedAt   DateTime    @updatedAt @map("updated_at")
+  createdAt               DateTime    @default(now()) @map("created_at")
+  updatedAt               DateTime    @updatedAt @map("updated_at")
 
   // relationships
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  movieIDs                String[]    @db.ObjectId
+  movies                  Movie[]     @relation(fields: [movieIDs], references: [id])
 
   @@map("favoritelists")
 }
 
 model WatchList {
-  id            String      @id @default(auto()) @map("_id") @db.ObjectId
-  name          String
-  userId        String      @db.ObjectId
-  movies        String[]    @default([])
+  id                      String      @id @default(auto()) @map("_id") @db.ObjectId
+  name                    String
+  userId                  String      @db.ObjectId
 
-  createdAt     DateTime    @default(now()) @map("created_at")
-  updatedAt     DateTime    @updatedAt @map("updated_at")
+  createdAt               DateTime    @default(now()) @map("created_at")
+  updatedAt               DateTime    @updatedAt @map("updated_at")
 
   // relationships
-  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movieIDs                String[]    @db.ObjectId
+  movies                  Movie[]     @relation(fields: [movieIDs], references: [id])
+
 
   @@map("watchlists")
+}
+
+model History {
+  id                      String      @id @default(auto()) @map("_id") @db.ObjectId
+  userId                  String      @db.ObjectId @unique
+  count                   Int         @default(1)
+
+  createdAt               DateTime    @default(now()) @map("created_at")
+  updatedAt               DateTime    @updatedAt @map("updated_at")
+
+  // relationships
+  user                    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movieIDs                String[]    @db.ObjectId
+  movies                  Movie[]     @relation(fields: [movieIDs], references: [id])
+
+  @@map("histories")
+}
+
+model Rating {
+  id                      String      @id @default(auto()) @map("_id") @db.ObjectId
+  movieId                 String      @db.ObjectId
+  userId                  String      @db.ObjectId @unique
+
+  rating                  Int
+
+  mood                    Int[]
+
+  // relationships
+  user                    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movie                   Movie       @relation(fields: [movieId], references: [id], onDelete: Cascade)
+
+  @@map("ratings")
 }
 
 model Movie {
@@ -65,7 +105,7 @@ model Movie {
   originalLanguage   String              @map("original_language")
   originalTitle      String              @map("original_title")
   overview           String?
-  popularity         Float
+  popularity         Float?
   posterPath         String?             @map("poster_path")
   releaseDate        String              @map("release_date")
   revenue            Int
@@ -80,6 +120,17 @@ model Movie {
   // relationships
   genreIDs           String[]            @db.ObjectId
   genres             Genre[]             @relation(fields: [genreIDs], references: [id])
+
+  watchListIDs       String[]            @db.ObjectId
+  watchLists         WatchList[]         @relation(fields: [watchListIDs], references: [id])
+
+  favoriteListIDs    String[]            @db.ObjectId
+  favoriteLists      FavoriteList[]      @relation(fields: [favoriteListIDs], references: [id])
+
+  historyIDs         String[]            @db.ObjectId
+  histories          History[]           @relation(fields: [historyIDs], references: [id])
+
+  ratings            Rating[]
   
   credits            Credit?
 }
@@ -115,7 +166,7 @@ model Genre {
   trendingWeekMovies      TrendingWeekMovie[] @relation(fields: [trendingWeekMovieIDs], references: [id])
 
   upcomingMovieIDs        String[]            @db.ObjectId
-  upcomingMovies          UpcomingMovie[]  @relation(fields: [upcomingMovieIDs], references: [id])
+  upcomingMovies          UpcomingMovie[]     @relation(fields: [upcomingMovieIDs], references: [id])
 }
 
 model Cast {
@@ -126,7 +177,7 @@ model Cast {
   knownForDepartment  String?             @map("known_for_department")
   name                String              
   originalName        String              @map("original_name")
-  popularity          Float
+  popularity          Float?
   profilePath         String?             @map("profile_path")
   cast_id             Int              
   character           String
@@ -134,8 +185,8 @@ model Cast {
   order               Int
 
   // relationships
-  creditIDs           String[]                  @db.ObjectId
-  credits             Credit[]                  @relation(fields: [creditIDs], references: [id])
+  creditIDs           String[]            @db.ObjectId
+  credits             Credit[]            @relation(fields: [creditIDs], references: [id])
 }
 
 model Crew {
@@ -146,15 +197,15 @@ model Crew {
   knownForDepartment  String?             @map("known_for_department")
   name                String              
   originalName        String              @map("original_name")
-  popularity          Float
+  popularity          Float?
   profilePath         String?             @map("profile_path")
   credit_id           String
   department          String
   job                 String
 
   // relationships
-  creditIDs           String[]                  @db.ObjectId
-  credits             Credit[]                  @relation(fields: [creditIDs], references: [id])
+  creditIDs           String[]            @db.ObjectId
+  credits             Credit[]            @relation(fields: [creditIDs], references: [id])
 }
 
 model Credit {
@@ -181,12 +232,12 @@ model Person {
   birthday            String?
   deathday            String?
   gender              Int
-  tmdb_id             Int                 @unique @map("id")
-  knownForDepartment  String?             @map("known_for_department")
+  tmdb_id             Int                @unique @map("id")
+  knownForDepartment  String?            @map("known_for_department")
   name                String
-  placeOfBirth        String?             @map("place_of_birth")
-  popularity          Float
-  profilePath         String?             @map("profile_path")
+  placeOfBirth        String?            @map("place_of_birth")
+  popularity          Float?
+  profilePath         String?            @map("profile_path")
 
   movie_credits       MovieCredit?
 }
@@ -199,7 +250,7 @@ model MovieCast {
   originalLanguage    String              @map("original_language")
   originalTitle       String              @map("original_title")
   overview            String
-  popularity          Float
+  popularity          Float?
   profilePath         String?             @map("profile_path")
   releaseDate         String              @map("release_date")
   title               String
@@ -211,11 +262,11 @@ model MovieCast {
   order               Int
 
   // genres
-  genreIDs            String[]             @db.ObjectId
-  genres              Genre[]              @relation(fields: [genreIDs], references: [id])
+  genreIDs            String[]            @db.ObjectId
+  genres              Genre[]             @relation(fields: [genreIDs], references: [id])
 
-  creditIDs           String[]             @db.ObjectId
-  credits             MovieCredit[]        @relation(fields: [creditIDs], references: [id])
+  creditIDs           String[]            @db.ObjectId
+  credits             MovieCredit[]       @relation(fields: [creditIDs], references: [id])
 }
 
 model MovieCrew {
@@ -226,7 +277,7 @@ model MovieCrew {
   originalLanguage    String              @map("original_language")
   originalTitle       String              @map("original_title")
   overview            String
-  popularity          Float
+  popularity          Float?
   profilePath         String?             @map("profile_path")
   releaseDate         String              @map("release_date")
   title               String
@@ -238,11 +289,11 @@ model MovieCrew {
   job                 String
 
   // genres
-  genreIDs            String[]             @db.ObjectId
-  genres              Genre[]              @relation(fields: [genreIDs], references: [id])
+  genreIDs            String[]            @db.ObjectId
+  genres              Genre[]             @relation(fields: [genreIDs], references: [id])
 
-  creditIDs           String[]                  @db.ObjectId
-  credits             MovieCredit[]             @relation(fields: [creditIDs], references: [id])
+  creditIDs           String[]            @db.ObjectId
+  credits             MovieCredit[]       @relation(fields: [creditIDs], references: [id])
 }
 
 model MovieCredit {
@@ -268,7 +319,7 @@ model NowPlayingMovie {
   originalLanguage    String              @map("original_language")
   originalTitle       String              @map("original_title")
   overview            String
-  popularity          Float
+  popularity          Float?
   posterPath          String?             @map("poster_path")
   releaseDate         String              @map("release_date")
   title               String
@@ -277,8 +328,8 @@ model NowPlayingMovie {
   voteCount           Int                 @map("vote_count")
   
   // genres
-  genreIDs            String[]             @db.ObjectId
-  genres              Genre[]              @relation(fields: [genreIDs], references: [id])
+  genreIDs            String[]            @db.ObjectId
+  genres              Genre[]             @relation(fields: [genreIDs], references: [id])
 }
 
 model PopularMovie {
@@ -289,7 +340,7 @@ model PopularMovie {
   originalLanguage    String              @map("original_language")
   originalTitle       String              @map("original_title")
   overview            String
-  popularity          Float
+  popularity          Float?
   posterPath          String?             @map("poster_path")
   releaseDate         String              @map("release_date")
   title               String
@@ -298,8 +349,8 @@ model PopularMovie {
   voteCount           Int                 @map("vote_count")
   
   // genres
-  genreIDs            String[]             @db.ObjectId
-  genres              Genre[]              @relation(fields: [genreIDs], references: [id])
+  genreIDs            String[]            @db.ObjectId
+  genres              Genre[]             @relation(fields: [genreIDs], references: [id])
 }
 
 model TopRatedMovie {
@@ -310,7 +361,7 @@ model TopRatedMovie {
   originalLanguage    String              @map("original_language")
   originalTitle       String              @map("original_title")
   overview            String
-  popularity          Float
+  popularity          Float?
   posterPath          String?             @map("poster_path")
   releaseDate         String              @map("release_date")
   title               String
@@ -319,8 +370,8 @@ model TopRatedMovie {
   voteCount           Int                 @map("vote_count")
   
   // genres
-  genreIDs            String[]             @db.ObjectId
-  genres              Genre[]              @relation(fields: [genreIDs], references: [id])
+  genreIDs            String[]            @db.ObjectId
+  genres              Genre[]             @relation(fields: [genreIDs], references: [id])
 }
 
 model TrendingDayMovie {
@@ -332,7 +383,7 @@ model TrendingDayMovie {
   originalLanguage    String              @map("original_language")
   originalTitle       String              @map("original_title")
   overview            String
-  popularity          Float
+  popularity          Float?
   posterPath          String?             @map("poster_path")
   releaseDate         String              @map("release_date")
   title               String
@@ -341,8 +392,8 @@ model TrendingDayMovie {
   voteCount           Int                 @map("vote_count")
   
   // genres
-  genreIDs            String[]             @db.ObjectId
-  genres              Genre[]              @relation(fields: [genreIDs], references: [id])
+  genreIDs            String[]            @db.ObjectId
+  genres              Genre[]             @relation(fields: [genreIDs], references: [id])
 }
 
 model TrendingWeekMovie {
@@ -354,7 +405,7 @@ model TrendingWeekMovie {
   originalLanguage    String              @map("original_language")
   originalTitle       String              @map("original_title")
   overview            String
-  popularity          Float
+  popularity          Float?
   posterPath          String?             @map("poster_path")
   releaseDate         String              @map("release_date")
   title               String
@@ -363,8 +414,8 @@ model TrendingWeekMovie {
   voteCount           Int                 @map("vote_count")
   
   // genres
-  genreIDs            String[]             @db.ObjectId
-  genres              Genre[]              @relation(fields: [genreIDs], references: [id])
+  genreIDs            String[]            @db.ObjectId
+  genres              Genre[]             @relation(fields: [genreIDs], references: [id])
 }
 
 model UpcomingMovie {
@@ -384,6 +435,6 @@ model UpcomingMovie {
   voteCount           Int                 @map("vote_count")
   
   // genres
-  genreIDs            String[]             @db.ObjectId
-  genres              Genre[]              @relation(fields: [genreIDs], references: [id])
+  genreIDs            String[]            @db.ObjectId
+  genres              Genre[]             @relation(fields: [genreIDs], references: [id])
 }

@@ -11,6 +11,9 @@ export class FavoriteListService {
       where: {
         userId,
       },
+      include: {
+        movies: true,
+      },
     });
 
     return favorites ? favorites : [];
@@ -21,17 +24,24 @@ export class FavoriteListService {
       where: {
         userId,
       },
+      include: {
+        movies: true,
+      },
     });
 
     if (!favorite) {
       await this.prisma.favoriteList.create({
         data: {
           userId,
-          movies: [movieId],
+          movies: {
+            connect: { tmdb_id: parseInt(movieId) },
+          },
         },
       });
     } else {
-      if (favorite.movies.includes(movieId)) {
+      if (
+        favorite.movies.find((movie) => movie.tmdb_id === parseInt(movieId))
+      ) {
         throw new BadRequestException(
           FAVORITE_MESSAGES.MOVIE_ALREADY_IN_FAVORITE,
         );
@@ -41,7 +51,9 @@ export class FavoriteListService {
           userId,
         },
         data: {
-          movies: [...favorite.movies, movieId],
+          movies: {
+            connect: { tmdb_id: parseInt(movieId) },
+          },
         },
       });
     }
@@ -65,7 +77,9 @@ export class FavoriteListService {
         userId,
       },
       data: {
-        movies: favorite.movies.filter((id) => id !== movieId),
+        movies: {
+          disconnect: { tmdb_id: parseInt(movieId) },
+        },
       },
     });
 
