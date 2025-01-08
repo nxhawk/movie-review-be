@@ -60,4 +60,5 @@ export const WATCHLIST_MESSAGES = {
   MOVIE_ALREADY_IN_WATCHLIST: 'Movie already in watch list',
   WATCHLIST_ALREADY_EXISTS: 'Watch list already exists',
   WATCHLIST_DOES_NOT_EXIST: 'Watch list does not exist',
+  UPDATE_WATCHLIST_SUCCESSFULLY: 'Update watch list successfully',
 };

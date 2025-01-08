@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Req,
 } from '@nestjs/common';
 import { WatchListService } from './watch-list.service';
@@ -47,6 +48,27 @@ export class WatchListController {
   @ApiResponse({ status: 404, description: 'Watch list not found.' })
   getWatchListById(@Param() { watchListId }) {
     return this.watchListService.getWatchListByAnyId(watchListId);
+  }
+
+  @Put('/:watchListId')
+  @ApiOperation({ summary: 'Update a specific watch list by ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Watch list successfully updated.',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized access.' })
+  @ApiResponse({ status: 404, description: 'Watch list not found.' })
+  @ApiBody({ type: CreateWatchListDto })
+  updateWatchList(
+    @Req() req: IUserRequest,
+    @Param() { watchListId },
+    @Body() createWatchListDto: CreateWatchListDto,
+  ) {
+    return this.watchListService.updateWatchList(
+      req.user.id,
+      watchListId,
+      createWatchListDto,
+    );
   }
 
   @Post('/new')

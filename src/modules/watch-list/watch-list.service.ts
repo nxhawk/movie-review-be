@@ -89,6 +89,32 @@ export class WatchListService {
     };
   }
 
+  async updateWatchList(
+    userId: string,
+    watchListId: string,
+    createWatchListDto: CreateWatchListDto,
+  ) {
+    const watchList = await this.getWatchListById(userId, watchListId);
+
+    if (!watchList) {
+      throw new BadRequestException('Watch list does not exist');
+    }
+
+    const updatedWatchList = await this.prisma.watchList.update({
+      where: {
+        id: watchListId,
+      },
+      data: {
+        ...createWatchListDto,
+      },
+    });
+
+    return {
+      message: WATCHLIST_MESSAGES.UPDATE_WATCHLIST_SUCCESSFULLY,
+      data: updatedWatchList,
+    };
+  }
+
   async addToWatchList(userId: string, watchListId: string, movieId: string) {
     const watchList = await this.getWatchListById(userId, watchListId);
 

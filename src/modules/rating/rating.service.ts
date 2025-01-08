@@ -46,7 +46,7 @@ export class RatingService {
     const averageRating = ratings.reduce((acc, curr) => acc + curr.rating, 0);
 
     return {
-      averageRating: averageRating / ratings.length,
+      averageRating: Math.round(averageRating / ratings.length),
     };
   }
 
