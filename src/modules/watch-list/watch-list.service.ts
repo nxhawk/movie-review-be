@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { WATCHLIST_MESSAGES } from 'src/constants/message';
 import { PrismaService } from 'src/shared/prisma/prisma.service';
+import { CreateWatchListDto } from './dtos/create-watchlist.dto';
 
 @Injectable()
 export class WatchListService {
@@ -14,30 +15,71 @@ export class WatchListService {
       include: {
         movies: true,
       },
+      orderBy: {
+        updatedAt: 'desc',
+      },
     });
 
     return allWatchList ? allWatchList : [];
   }
 
+  async getWatchListByAnyId(watchListId: string) {
+    const watchList = await this.prisma.watchList.findFirst({
+      where: {
+        id: watchListId,
+      },
+      include: {
+        movies: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    return { ...watchList, movies: watchList.movies.reverse() };
+  }
+
   async getWatchListById(userId: string, watchListId: string) {
-    const allWatchList = await this.getAllWatchList(userId);
-    const watchList = allWatchList.find((watch) => watch.id === watchListId);
+    const watchList = await this.prisma.watchList.findFirst({
+      where: {
+        id: watchListId,
+        userId,
+      },
+      include: {
+        movies: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
 
     return watchList;
   }
 
-  async createWatchList(userId: string, name: string) {
+  async createWatchList(
+    userId: string,
+    createWatchListDto: CreateWatchListDto,
+  ) {
+    const { name } = createWatchListDto;
     const allWatchList = await this.getAllWatchList(userId);
     const existingWatchList = allWatchList.find((watch) => watch.name === name);
 
     if (existingWatchList) {
-      throw new BadRequestException('Watch list already exists');
+      throw new BadRequestException('Watch list with this name already exists');
     }
 
     const watchList = await this.prisma.watchList.create({
       data: {
         userId,
-        name,
+        ...createWatchListDto,
       },
     });
 

@@ -21,15 +21,15 @@ async function main() {
   }
 
   // All good, let's seed the database
-  // await generateGenre(API_KEY);
-  // await generateNowPlayingMovies();
-  // await generatePopularMovies();
+  await generateGenre(API_KEY);
+  await generateNowPlayingMovies();
+  await generatePopularMovies();
   await generateTopRatedMovies();
   await generateUpcomingMovies();
   await generateTrendingDayMovies();
   await generateTrendingWeekMovies();
-  // await generatePeople();
-  // await generateMovie();
+  await generatePeople();
+  await generateMovie();
 }
 
 main()

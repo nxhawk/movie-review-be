@@ -21,16 +21,16 @@ export const generatePeople = async () => {
       create: {
         tmdb_id: person.tmdb_id,
         adult: person.adult,
-        alsoKnownAs: person.also_known_as.map((name) => name),
+        also_known_as: person.also_known_as.map((name) => name),
         biography: person.biography,
         birthday: person?.birthday,
         deathday: person?.deathday,
         gender: person.gender,
-        knownForDepartment: person.known_for_department,
+        known_for_department: person.known_for_department,
         name: person.name,
-        placeOfBirth: person.place_of_birth,
+        place_of_birth: person.place_of_birth,
         popularity: person.popularity,
-        profilePath: person.profile_path,
+        profile_path: person.profile_path,
       },
     });
 

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
+import { IsBoolean, IsNotEmpty, MaxLength } from 'class-validator';
 
 export class CreateWatchListDto {
   @ApiProperty({
@@ -7,6 +7,23 @@ export class CreateWatchListDto {
     example: 'Summer Movies',
     description: 'The name of the watchlist',
   })
+  @MaxLength(50, { message: 'name has maximum length of 50' })
   @IsNotEmpty({ message: 'name is required' })
   name: string;
+
+  @ApiProperty({
+    type: String,
+    example: 'Movies to watch in the summer',
+    description: 'The description of the watchlist',
+  })
+  description: string;
+
+  @ApiProperty({
+    type: Boolean,
+    example: true,
+    description: 'The visibility of the watchlist',
+  })
+  @IsNotEmpty({ message: 'isPublic is required' })
+  @IsBoolean({ message: 'isPublic must be a boolean' })
+  isPublic: boolean;
 }

@@ -22,16 +22,22 @@ export class HttpExceptionFilter
 
     const validationErrors = r.message;
 
-    response.status(statusCode).json({
-      message: validationErrors.map((err) => ({
-        fieldName: err.property,
-        errorMessage: `${
-          Object.values(err.constraints)[0].charAt(0).toUpperCase() +
+    // Map validation errors safely
+    const formattedErrors = validationErrors.map((err) => {
+      const errorMessage = err.constraints
+        ? Object.values(err.constraints)[0].charAt(0).toUpperCase() +
           Object.values(err.constraints)[0].slice(1)
-        }`,
-      })),
+        : 'Validation error';
+      return {
+        fieldName: err.property,
+        errorMessage,
+      };
+    });
+
+    response.status(statusCode).json({
+      message: formattedErrors,
       error: 'Unprocessable Entity',
-      statusCode: statusCode,
+      statusCode,
     });
   }
 }

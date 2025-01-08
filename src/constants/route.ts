@@ -6,4 +6,5 @@ export const ROUTES = {
   FAVORITELIST: 'favorite-list',
   WATCHLIST: 'watch-list',
   HEALTH: 'health',
+  RATING: 'rating',
 };

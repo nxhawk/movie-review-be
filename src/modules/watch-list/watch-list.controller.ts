@@ -45,8 +45,8 @@ export class WatchListController {
   })
   @ApiResponse({ status: 401, description: 'Unauthorized access.' })
   @ApiResponse({ status: 404, description: 'Watch list not found.' })
-  getWatchListById(@Req() req: IUserRequest, @Param() { watchListId }) {
-    return this.watchListService.getWatchListById(req.user.id, watchListId);
+  getWatchListById(@Param() { watchListId }) {
+    return this.watchListService.getWatchListByAnyId(watchListId);
   }
 
   @Post('/new')
@@ -64,7 +64,7 @@ export class WatchListController {
   ) {
     return this.watchListService.createWatchList(
       req.user.id,
-      createWatchListDto.name,
+      createWatchListDto,
     );
   }
 

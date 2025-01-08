@@ -16,7 +16,30 @@ export class FavoriteListService {
       },
     });
 
-    return favorites ? favorites : [];
+    return favorites
+      ? { ...favorites, movies: favorites.movies.reverse() }
+      : [];
+  }
+
+  async checkFavorite(userId: string, movieId: string) {
+    const favorite = await this.prisma.favoriteList.findUnique({
+      where: {
+        userId,
+      },
+      include: {
+        movies: true,
+      },
+    });
+
+    if (!favorite) {
+      return false;
+    }
+
+    if (favorite.movies.find((movie) => movie.tmdb_id === parseInt(movieId))) {
+      return true;
+    }
+
+    return false;
   }
 
   async addFavorite(userId: string, movieId: string) {

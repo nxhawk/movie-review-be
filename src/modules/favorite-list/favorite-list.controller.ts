@@ -27,6 +27,26 @@ export class FavoriteListController {
     return this.favoriteListService.getListFavorite(req.user.id);
   }
 
+  @Get('/:movieId')
+  @ApiOperation({ summary: 'Check if a movie is in the user’s favorite list' })
+  @ApiParam({
+    name: 'movieId',
+    type: String,
+    description: 'The ID of the movie to check',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Movie is in the favorite list.',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Movie is not in the favorite list.',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized access.' })
+  checkFavorite(@Req() req: IUserRequest, @Param() { movieId }) {
+    return this.favoriteListService.checkFavorite(req.user.id, movieId);
+  }
+
   @Post('/:movieId')
   @ApiOperation({ summary: 'Add a movie to the user’s favorite list' })
   @ApiParam({

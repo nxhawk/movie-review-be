@@ -13,7 +13,7 @@ export class PrismaClientExceptionFilter extends BaseExceptionFilter {
     switch (exception.code) {
       case 'P2002': {
         const status = HttpStatus.CONFLICT;
-        const errorMessage = 'Xuất hiện xung đột dữ liệu';
+        const errorMessage = 'A data conflict occurs';
         response.status(status).json({
           statusCode: status,
           message: errorMessage,
@@ -22,7 +22,7 @@ export class PrismaClientExceptionFilter extends BaseExceptionFilter {
       }
       case 'P2025': {
         const status = HttpStatus.NOT_FOUND;
-        const errorMessage = 'Dữ liệu không tồn tại';
+        const errorMessage = 'Data does not exist';
         response.status(status).json({
           statusCode: status,
           message: errorMessage,

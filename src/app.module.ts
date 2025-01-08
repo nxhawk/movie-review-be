@@ -26,6 +26,8 @@ import { HealthModule } from './modules/health/health.module';
 import tmdbConfig from './configs/tmdb.config';
 import { PrismaModule } from './shared/prisma/prisma.module';
 import { AuthenticateMiddleware } from './middlewares';
+import { RatingModule } from './modules/rating/rating.module';
+import { WatchlistMiddleware } from './middlewares/watchlist.middleware';
 
 @Module({
   imports: [
@@ -117,6 +119,7 @@ import { AuthenticateMiddleware } from './middlewares';
     WatchListModule,
     FavoriteListModule,
     HealthModule,
+    RatingModule,
   ],
 })
 export class AppModule implements NestModule {
@@ -144,7 +147,16 @@ export class AppModule implements NestModule {
           path: 'users/reset-password',
           method: RequestMethod.POST,
         },
+        {
+          path: '/watch-list/:id',
+          method: RequestMethod.GET,
+        },
       )
-      .forRoutes('*');
+      .forRoutes('*')
+      .apply(WatchlistMiddleware)
+      .forRoutes({
+        path: '/watch-list/:id',
+        method: RequestMethod.GET,
+      });
   }
 }

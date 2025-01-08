@@ -18,6 +18,10 @@ model User {
   verify                  Boolean           @default(false)
   verifyEmailToken        String?
 
+  createdAt               DateTime          @default(now()) @map("created_at")
+  updatedAt               DateTime          @updatedAt @map("updated_at")
+
+
   // relationships
   favoriteLists           FavoriteList?
 
@@ -49,9 +53,10 @@ model FavoriteList {
 model WatchList {
   id                      String      @id @default(auto()) @map("_id") @db.ObjectId
   name                    String
+  description             String?
+  isPublic                Boolean     @default(true)
   userId                  String      @db.ObjectId
-
-  createdAt               DateTime    @default(now()) @map("created_at")
+  
   updatedAt               DateTime    @updatedAt @map("updated_at")
 
   // relationships
@@ -82,40 +87,42 @@ model History {
 model Rating {
   id                      String      @id @default(auto()) @map("_id") @db.ObjectId
   movieId                 String      @db.ObjectId
-  userId                  String      @db.ObjectId @unique
+  userId                  String      @db.ObjectId
 
   rating                  Int
-
   mood                    Int[]
+
+  updatedAt               DateTime    @updatedAt @map("updated_at")
 
   // relationships
   user                    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   movie                   Movie       @relation(fields: [movieId], references: [id], onDelete: Cascade)
 
+  @@unique([movieId, userId])
   @@map("ratings")
 }
 
 model Movie {
   id                 String              @id @default(auto()) @map("_id") @db.ObjectId
   adult              Boolean
-  backdropPath       String?             @map("backdrop_path")
+  backdrop_path      String?            
   budget             Int
   categories         String[]
   tmdb_id            Int                 @unique @map("id")
-  originalLanguage   String              @map("original_language")
-  originalTitle      String              @map("original_title")
+  original_language  String              
+  original_title     String              
   overview           String?
   popularity         Float?
-  posterPath         String?             @map("poster_path")
-  releaseDate        String              @map("release_date")
+  poster_path        String?             
+  release_date       String              
   revenue            Int
   runtime            Int?
   status             String
   tagline            String?
   title              String
   video              Boolean
-  voteAverage        Float               @map("vote_average")
-  voteCount          Int                 @map("vote_count")
+  vote_average       Float               
+  vote_count         Int                 
   
   // relationships
   genreIDs           String[]            @db.ObjectId
@@ -170,19 +177,19 @@ model Genre {
 }
 
 model Cast {
-  id                  String              @id @default(auto()) @map("_id") @db.ObjectId
-  adult               Boolean
-  gender              Int
-  tmdb_id             Int                 @unique @map("id")
-  knownForDepartment  String?             @map("known_for_department")
-  name                String              
-  originalName        String              @map("original_name")
-  popularity          Float?
-  profilePath         String?             @map("profile_path")
-  cast_id             Int              
-  character           String
-  credit_id           String
-  order               Int
+  id                    String              @id @default(auto()) @map("_id") @db.ObjectId
+  adult                 Boolean
+  gender                Int
+  tmdb_id               Int                 @unique @map("id")
+  known_for_department  String?           
+  name                  String              
+  original_name         String             
+  popularity            Float?
+  profile_path          String?            
+  cast_id               Int              
+  character             String
+  credit_id             String
+  order                 Int
 
   // relationships
   creditIDs           String[]            @db.ObjectId
@@ -190,22 +197,22 @@ model Cast {
 }
 
 model Crew {
-  id                  String              @id @default(auto()) @map("_id") @db.ObjectId
-  adult               Boolean
-  gender              Int
-  tmdb_id             Int                 @unique @map("id")
-  knownForDepartment  String?             @map("known_for_department")
-  name                String              
-  originalName        String              @map("original_name")
-  popularity          Float?
-  profilePath         String?             @map("profile_path")
-  credit_id           String
-  department          String
-  job                 String
+  id                    String              @id @default(auto()) @map("_id") @db.ObjectId
+  adult                 Boolean
+  gender                Int
+  tmdb_id               Int                 @unique @map("id")
+  known_for_department  String?           
+  name                  String              
+  original_name         String          
+  popularity            Float?
+  profile_path          String?             
+  credit_id             String
+  department            String
+  job                   String
 
   // relationships
-  creditIDs           String[]            @db.ObjectId
-  credits             Credit[]            @relation(fields: [creditIDs], references: [id])
+  creditIDs             String[]            @db.ObjectId
+  credits               Credit[]            @relation(fields: [creditIDs], references: [id])
 }
 
 model Credit {
@@ -225,38 +232,38 @@ model Credit {
 
 // Person
 model Person {
-  id                  String             @id @default(auto()) @map("_id") @db.ObjectId
-  adult               Boolean
-  alsoKnownAs         String[]           @map("also_known_as")
-  biography           String
-  birthday            String?
-  deathday            String?
-  gender              Int
-  tmdb_id             Int                @unique @map("id")
-  knownForDepartment  String?            @map("known_for_department")
-  name                String
-  placeOfBirth        String?            @map("place_of_birth")
-  popularity          Float?
-  profilePath         String?            @map("profile_path")
+  id                    String             @id @default(auto()) @map("_id") @db.ObjectId
+  adult                 Boolean
+  also_known_as         String[]        
+  biography             String
+  birthday              String?
+  deathday              String?
+  gender                Int
+  tmdb_id               Int                @unique @map("id")
+  known_for_department  String?          
+  name                  String
+  place_of_birth        String?         
+  popularity            Float?
+  profile_path          String?          
 
-  movie_credits       MovieCredit?
+  movie_credits         MovieCredit?
 }
 
 model MovieCast {
   id                  String              @id @default(auto()) @map("_id") @db.ObjectId
   adult               Boolean
-  backdropPath        String?             @map("backdrop_path")
+  backdrop_path       String?             
   tmdb_id             Int                 @unique @map("id")
-  originalLanguage    String              @map("original_language")
-  originalTitle       String              @map("original_title")
+  original_language   String              
+  original_title      String              
   overview            String
   popularity          Float?
-  profilePath         String?             @map("profile_path")
-  releaseDate         String              @map("release_date")
+  profile_path        String?             
+  release_date        String              
   title               String
   video               Boolean
-  voteAverage         Float               @map("vote_average")
-  voteCount           Int                 @map("vote_count")
+  vote_average        Float               
+  vote_count          Int                  
   character           String
   credit_id           String
   order               Int
@@ -272,18 +279,18 @@ model MovieCast {
 model MovieCrew {
   id                  String              @id @default(auto()) @map("_id") @db.ObjectId
   adult               Boolean
-  backdropPath        String?             @map("backdrop_path")
+  backdrop_path       String?            
   tmdb_id             Int                 @unique @map("id")
-  originalLanguage    String              @map("original_language")
-  originalTitle       String              @map("original_title")
+  original_language   String              
+  original_title      String              
   overview            String
   popularity          Float?
-  profilePath         String?             @map("profile_path")
-  releaseDate         String              @map("release_date")
+  profile_path        String?             
+  release_date        String              
   title               String
   video               Boolean
-  voteAverage         Float               @map("vote_average")
-  voteCount           Int                 @map("vote_count")
+  vote_average        Float               
+  vote_count          Int                 
   credit_id           String
   department          String
   job                 String
@@ -312,41 +319,41 @@ model MovieCredit {
 }
 
 model NowPlayingMovie {
-  id                  String              @id @default(auto()) @map("_id") @db.ObjectId
-  adult               Boolean
-  backdropPath        String?             @map("backdrop_path")
-  tmdb_id             Int                 @unique @map("id")
-  originalLanguage    String              @map("original_language")
-  originalTitle       String              @map("original_title")
-  overview            String
-  popularity          Float?
-  posterPath          String?             @map("poster_path")
-  releaseDate         String              @map("release_date")
-  title               String
-  video               Boolean
-  voteAverage         Float               @map("vote_average")
-  voteCount           Int                 @map("vote_count")
+  id                    String              @id @default(auto()) @map("_id") @db.ObjectId
+  adult                 Boolean
+  backdrop_path         String?            
+  tmdb_id               Int                 @unique @map("id")
+  original_language     String             
+  original_title        String             
+  overview              String
+  popularity            Float?
+  poster_path           String?           
+  release_date          String             
+  title                 String
+  video                 Boolean
+  vote_average          Float               
+  vote_count            Int                 
   
   // genres
-  genreIDs            String[]            @db.ObjectId
-  genres              Genre[]             @relation(fields: [genreIDs], references: [id])
+  genreIDs              String[]            @db.ObjectId
+  genres                Genre[]             @relation(fields: [genreIDs], references: [id])
 }
 
 model PopularMovie {
   id                  String              @id @default(auto()) @map("_id") @db.ObjectId
   adult               Boolean
-  backdropPath        String?             @map("backdrop_path")
+  backdrop_path       String?             
   tmdb_id             Int                 @unique @map("id")
-  originalLanguage    String              @map("original_language")
-  originalTitle       String              @map("original_title")
+  original_language   String              
+  original_title      String              
   overview            String
   popularity          Float?
-  posterPath          String?             @map("poster_path")
-  releaseDate         String              @map("release_date")
+  poster_path         String?             
+  release_date        String              
   title               String
   video               Boolean
-  voteAverage         Float               @map("vote_average")
-  voteCount           Int                 @map("vote_count")
+  vote_average        Float               
+  vote_count          Int                 
   
   // genres
   genreIDs            String[]            @db.ObjectId
@@ -356,18 +363,18 @@ model PopularMovie {
 model TopRatedMovie {
   id                  String              @id @default(auto()) @map("_id") @db.ObjectId
   adult               Boolean
-  backdropPath        String?             @map("backdrop_path")
+  backdrop_path       String?             
   tmdb_id             Int                 @unique @map("id")
-  originalLanguage    String              @map("original_language")
-  originalTitle       String              @map("original_title")
+  original_language   String              
+  original_title      String              
   overview            String
   popularity          Float?
-  posterPath          String?             @map("poster_path")
-  releaseDate         String              @map("release_date")
+  poster_path         String?             
+  release_date        String              
   title               String
   video               Boolean
-  voteAverage         Float               @map("vote_average")
-  voteCount           Int                 @map("vote_count")
+  vote_average        Float               
+  vote_count          Int                 
   
   // genres
   genreIDs            String[]            @db.ObjectId
@@ -377,19 +384,19 @@ model TopRatedMovie {
 model TrendingDayMovie {
   id                  String              @id @default(auto()) @map("_id") @db.ObjectId
   adult               Boolean
-  backdropPath        String?             @map("backdrop_path")
+  backdrop_path       String?             
   tmdb_id             Int                 @unique @map("id")
-  mediaType           String              @map("media_type")
-  originalLanguage    String              @map("original_language")
-  originalTitle       String              @map("original_title")
+  media_type          String              
+  original_language   String              
+  original_title      String              
   overview            String
   popularity          Float?
-  posterPath          String?             @map("poster_path")
-  releaseDate         String              @map("release_date")
+  poster_path         String?             
+  release_date        String              
   title               String
   video               Boolean
-  voteAverage         Float               @map("vote_average")
-  voteCount           Int                 @map("vote_count")
+  vote_average        Float               
+  vote_count          Int                 
   
   // genres
   genreIDs            String[]            @db.ObjectId
@@ -399,19 +406,19 @@ model TrendingDayMovie {
 model TrendingWeekMovie {
   id                  String              @id @default(auto()) @map("_id") @db.ObjectId
   adult               Boolean
-  backdropPath        String?             @map("backdrop_path")
+  backdrop_path       String?             
   tmdb_id             Int                 @unique @map("id")
-  mediaType           String              @map("media_type")
-  originalLanguage    String              @map("original_language")
-  originalTitle       String              @map("original_title")
+  media_type          String              
+  original_language   String              
+  original_title      String              
   overview            String
   popularity          Float?
-  posterPath          String?             @map("poster_path")
-  releaseDate         String              @map("release_date")
+  poster_path         String?             
+  release_date        String?             
   title               String
-  video               Boolean
-  voteAverage         Float               @map("vote_average")
-  voteCount           Int                 @map("vote_count")
+  video               Boolean?
+  vote_average        Float?              
+  vote_count          Int?                
   
   // genres
   genreIDs            String[]            @db.ObjectId
@@ -421,18 +428,18 @@ model TrendingWeekMovie {
 model UpcomingMovie {
   id                  String              @id @default(auto()) @map("_id") @db.ObjectId
   adult               Boolean
-  backdropPath        String?             @map("backdrop_path")
+  backdrop_path       String?             
   tmdb_id             Int                 @unique @map("id")
-  originalLanguage    String              @map("original_language")
-  originalTitle       String              @map("original_title")
+  original_language   String              
+  original_title      String              
   overview            String
   popularity          Float
-  posterPath          String?             @map("poster_path")
-  releaseDate         String              @map("release_date")
+  poster_path         String?             
+  release_date        String              
   title               String
   video               Boolean
-  voteAverage         Float               @map("vote_average")
-  voteCount           Int                 @map("vote_count")
+  vote_average        Float               
+  vote_count          Int                 
   
   // genres
   genreIDs            String[]            @db.ObjectId
