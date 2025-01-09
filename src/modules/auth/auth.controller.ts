@@ -18,6 +18,7 @@ import {
   ApiBody,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -39,6 +40,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @ApiBody({ type: RegisterDto })
+  @ApiOperation({ summary: 'Register a new user' })
   @ApiOkResponse({
     schema: {
       type: 'object',
@@ -56,12 +58,14 @@ export class AuthController {
   }
 
   @UseGuards(GoogleAuthGuard)
+  @ApiOperation({ summary: 'Login with Google' })
   @Get('google')
   loginGoogle() {
     return HttpStatus.OK;
   }
 
   @UseGuards(GoogleAuthGuard)
+  @ApiOperation({ summary: 'Login with Google callback' })
   @Get('google/redirect')
   @Redirect()
   async loginWithGoogleCallback(@Req() req: IOAuthRequest) {
@@ -72,12 +76,14 @@ export class AuthController {
   }
 
   @UseGuards(FacebookAuthGuard)
+  @ApiOperation({ summary: 'Login with Facebook' })
   @Get('facebook')
   loginWithFacebook() {
     return HttpStatus.OK;
   }
 
   @UseGuards(FacebookAuthGuard)
+  @ApiOperation({ summary: 'Login with Facebook callback' })
   @Get('facebook/redirect')
   @Redirect()
   async loginWithFacebookCallback(@Req() req: IOAuthRequest) {
@@ -89,6 +95,7 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @ApiBody({ type: AuthCredentialsDto })
+  @ApiOperation({ summary: 'Login with email and password' })
   @ApiOkResponse({
     schema: {
       type: 'object',
@@ -122,6 +129,7 @@ export class AuthController {
   }
 
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get the current user' })
   @ApiNotFoundResponse({
     schema: {
       type: 'object',
@@ -160,18 +168,21 @@ export class AuthController {
       },
     },
   })
+  @ApiOperation({ summary: 'Refresh token' })
   @Post('refresh-token')
   refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
     return this.authService.refreshToken(refreshTokenDto);
   }
 
   @Get('verify-email')
+  @ApiOperation({ summary: 'Verify email' })
   findOne(@Query('token') token: string) {
     return this.authService.confirmEmail(token);
   }
 
   @Post('resend-confirm-email')
   @ApiBody({ type: ResendConfirmEmailDto })
+  @ApiOperation({ summary: 'Resend confirm email' })
   resendConfirmEmail(@Body() resendConfirmEmailDto: ResendConfirmEmailDto) {
     return this.authService.resendConfirmEmail(resendConfirmEmailDto);
   }
@@ -194,6 +205,7 @@ export class AuthController {
       },
     },
   })
+  @ApiOperation({ summary: 'Logout' })
   @HttpCode(HttpStatus.OK)
   @Delete('/logout')
   async signOut(@Req() req: IUserRequest) {

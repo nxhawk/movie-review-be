@@ -1,7 +1,7 @@
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { AbstractEntity } from 'src/common/entity/abstract.entity';
-import { MovieDto } from 'src/modules/tmdb/dto/movie.dto';
+import { MovieDto } from 'src/modules/watch-list/dtos/movie.dto';
 
 @Schema()
 export class FavoriteList extends AbstractEntity {

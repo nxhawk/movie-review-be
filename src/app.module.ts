@@ -19,7 +19,6 @@ import mailConfig from './configs/mail.config';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { MailsModule } from './modules/mails/mails.module';
-import { TmdbModule } from './modules/tmdb/tmdb.module';
 import { WatchListModule } from './modules/watch-list/watch-list.module';
 import { FavoriteListModule } from './modules/favorite-list/favorite-list.module';
 import { HealthModule } from './modules/health/health.module';
@@ -28,6 +27,8 @@ import { PrismaModule } from './shared/prisma/prisma.module';
 import { AuthenticateMiddleware } from './middlewares';
 import { RatingModule } from './modules/rating/rating.module';
 import { WatchlistMiddleware } from './middlewares/watchlist.middleware';
+import { MovieModule } from './modules/movie/movie.module';
+import { PersonModule } from './modules/person/person.module';
 
 @Module({
   imports: [
@@ -115,11 +116,12 @@ import { WatchlistMiddleware } from './middlewares/watchlist.middleware';
     UsersModule,
     AuthModule,
     MailsModule,
-    TmdbModule,
     WatchListModule,
     FavoriteListModule,
     HealthModule,
     RatingModule,
+    MovieModule,
+    PersonModule,
   ],
 })
 export class AppModule implements NestModule {
@@ -133,6 +135,14 @@ export class AppModule implements NestModule {
         },
         {
           path: 'health',
+          method: RequestMethod.GET,
+        },
+        {
+          path: 'movie/(.*)',
+          method: RequestMethod.GET,
+        },
+        {
+          path: 'person/(.*)',
           method: RequestMethod.GET,
         },
         {

@@ -7,4 +7,6 @@ export const ROUTES = {
   WATCHLIST: 'watch-list',
   HEALTH: 'health',
   RATING: 'rating',
+  MOVIE: 'movie',
+  PERSON: 'person',
 };

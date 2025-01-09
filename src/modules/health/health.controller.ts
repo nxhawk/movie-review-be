@@ -1,4 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
+import { ApiOperation } from '@nestjs/swagger';
 import { HealthCheck, HealthCheckService } from '@nestjs/terminus';
 import { ROUTES } from 'src/constants/route';
 
@@ -12,6 +13,7 @@ export class HealthController {
   ) {}
 
   @Get()
+  @ApiOperation({ summary: 'Check the health of the application' })
   @HealthCheck()
   check() {
     return this.health.check([() => this.db.pingCheck('database')]);

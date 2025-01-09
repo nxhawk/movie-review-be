@@ -127,7 +127,7 @@ model Movie {
   // relationships
   genres             Json[]
   reviews            Json[]
-  credits            Json
+  credits            MovieCredits
   trailers           Json[]
 
   watchListIDs       String[]            @db.ObjectId
@@ -288,4 +288,9 @@ model UpcomingMovie {
   
   // genres
   genre_ids           Int[]
+}
+
+type MovieCredits {
+  cast Json[]
+  crew Json[]
 }
