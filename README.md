@@ -11,6 +11,8 @@ npm run start:dev
 npm run seed
 ```
 
+mongoimport mongodb+srv://movie-review:12345@movie.n1mai.mongodb.net/test --collection Movie tmdb.movies.json --jsonArray
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
 </p>
