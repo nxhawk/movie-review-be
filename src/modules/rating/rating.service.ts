@@ -105,13 +105,6 @@ export class RatingService {
       },
     });
 
-    if (!rating) {
-      return await this.updateRatingMovie(userId, movieId, {
-        rating: 0,
-        mood: [-1, -1, -1, -1, -1, -1, -1],
-      });
-    }
-
-    return rating;
+    return rating ? rating : { rating: 0, mood: [-1, -1, -1, -1, -1, -1, -1] };
   }
 }

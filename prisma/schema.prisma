@@ -115,7 +115,7 @@ model Movie {
   popularity         Float?
   poster_path        String?             
   release_date       String              
-  revenue            BigInt
+  revenue            Int
   runtime            Int?
   status             String
   tagline            String?
@@ -128,7 +128,6 @@ model Movie {
   genres             Json[]
   reviews            Json[]
   credits            Json
-  keywords           Json[]
   trailers           Json[]
 
   watchListIDs       String[]            @db.ObjectId
