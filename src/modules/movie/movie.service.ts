@@ -240,6 +240,7 @@ export class MovieService {
       return {
         id: movie.tmdb_id,
         results: movie.reviews,
+        total_results: movie.reviews.length || 0,
       };
     } catch (error) {
       throw new BadRequestException('Movie not found.');
