@@ -74,6 +74,7 @@ export class PersonService {
           tmdb_id: Number(personId),
         },
       });
+      if (!person) throw new BadRequestException('Person not found.');
       return _.omit(person, ['movie_credits']);
     } catch (error) {
       throw new BadRequestException('Person not found.');

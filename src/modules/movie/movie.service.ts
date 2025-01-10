@@ -80,6 +80,7 @@ export class MovieService {
       const movie = await this.prisma.movie.findUnique({
         where: { tmdb_id: parseInt(movieId) },
       });
+      if (!movie) throw new BadRequestException('Movie not found.');
       return _.omit(movie, [
         'watchListIDs',
         'favoriteListIDs',
