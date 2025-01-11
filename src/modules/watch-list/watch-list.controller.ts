@@ -84,6 +84,7 @@ export class WatchListController {
     @Req() req: IUserRequest,
     @Body() createWatchListDto: CreateWatchListDto,
   ) {
+    console.log(createWatchListDto);
     return this.watchListService.createWatchList(
       req.user.id,
       createWatchListDto,

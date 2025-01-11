@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsNotEmpty, MaxLength } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsString, MaxLength } from 'class-validator';
 
 export class CreateWatchListDto {
   @ApiProperty({
@@ -16,7 +16,8 @@ export class CreateWatchListDto {
     example: 'Movies to watch in the summer',
     description: 'The description of the watchlist',
   })
-  description: string;
+  @IsString({ message: 'description must be a string' })
+  description?: string;
 
   @ApiProperty({
     type: Boolean,
