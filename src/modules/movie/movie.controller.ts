@@ -87,22 +87,43 @@ export class MovieController {
   getUpcomingMovies(@Query() query) {
     return this.movieService.getUpcomingMovies(query);
   }
+  @Get('/release-date-range')
+  @ApiOperation({
+    summary: 'Get movies released 3 months from now or 1 months before',
+  })
+  @ApiResponse({
+    status: 200,
+    description:
+      'Successfully retrieved the movies within the specified date range.',
+  })
+  getMoviesByReleaseDateRange() {
+    return this.movieService.getMoviesByReleaseDateRange();
+  }
+  @Get('/now-playing-trailers')
+  @ApiOperation({ summary: 'Get trailers for now playing movies' })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully retrieved the now playing movie trailers.',
+  })
+  getNowPlayingMovieTrailers() {
+    return this.movieService.getNowPlayingMovieTrailers();
+  }
 
-  // @Get('/:movieId')
-  // @ApiOperation({ summary: 'Get the detail of a movie' })
-  // @ApiParam({
-  //   name: 'movieId',
-  //   type: String,
-  //   description: 'The ID of the movie to get detail',
-  // })
-  // @ApiResponse({
-  //   status: 200,
-  //   description: 'Successfully retrieved the movie detail.',
-  // })
-  // @ApiResponse({ status: 404, description: 'Movie not found.' })
-  // getMovieDetail(@Param() { movieId }) {
-  //   return this.movieService.getMovieDetail(movieId);
-  // }
+  @Get('/:movieId')
+  @ApiOperation({ summary: 'Get the detail of a movie' })
+  @ApiParam({
+    name: 'movieId',
+    type: String,
+    description: 'The ID of the movie to get detail',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully retrieved the movie detail.',
+  })
+  @ApiResponse({ status: 404, description: 'Movie not found.' })
+  getMovieDetail(@Param() { movieId }) {
+    return this.movieService.getMovieDetail(movieId);
+  }
 
   @Get('/:movieId/videos')
   @ApiOperation({ summary: 'Get the videos of a movie' })
@@ -150,26 +171,5 @@ export class MovieController {
   @ApiResponse({ status: 404, description: 'Movie not found.' })
   getMovieCredits(@Param() { movieId }) {
     return this.movieService.getMovieCredits(movieId);
-  }
-  @Get('/release-date-range')
-  @ApiOperation({
-    summary: 'Get movies released 6 months from now or 2 months before',
-  })
-  @ApiResponse({
-    status: 200,
-    description:
-      'Successfully retrieved the movies within the specified date range.',
-  })
-  getMoviesByReleaseDateRange() {
-    return this.movieService.getMoviesByReleaseDateRange();
-  }
-  @Get('/now-playing-trailers')
-  @ApiOperation({ summary: 'Get trailers for now playing movies' })
-  @ApiResponse({
-    status: 200,
-    description: 'Successfully retrieved the now playing movie trailers.',
-  })
-  getNowPlayingMovieTrailers() {
-    return this.movieService.getNowPlayingMovieTrailers();
   }
 }

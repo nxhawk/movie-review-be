@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { addMonths, subMonths } from 'date-fns';
-
+import _ from 'lodash';
 @Injectable()
 export class MovieService {
   constructor(private prisma: PrismaService) {}
@@ -75,24 +75,24 @@ export class MovieService {
     };
   }
 
-  // async getMovieDetail(movieId: string) {
-  //   try {
-  //     const movie = await this.prisma.movie.findUnique({
-  //       where: { tmdb_id: parseInt(movieId) },
-  //     });
-  //     if (!movie) throw new BadRequestException('Movie not found.');
-  //     return _.omit(movie, [
-  //       'watchListIDs',
-  //       'favoriteListIDs',
-  //       'historyIDs',
-  //       'trailers',
-  //       'reviews',
-  //       'credits',
-  //     ]);
-  //   } catch (error) {
-  //     throw new BadRequestException('Movie not found.');
-  //   }
-  // }
+  async getMovieDetail(movieId: string) {
+    try {
+      const movie = await this.prisma.movie.findUnique({
+        where: { tmdb_id: parseInt(movieId) },
+      });
+      if (!movie) throw new BadRequestException('Movie not found.');
+      return _.omit(movie, [
+        'watchListIDs',
+        'favoriteListIDs',
+        'historyIDs',
+        'trailers',
+        'reviews',
+        'credits',
+      ]);
+    } catch (error) {
+      throw new BadRequestException('Movie not found.');
+    }
+  }
 
   async getTrendingMoviesOfDay(query) {
     const page = Number(query['page']) || 1;
