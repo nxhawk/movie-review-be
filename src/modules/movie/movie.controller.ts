@@ -163,4 +163,13 @@ export class MovieController {
   getMoviesByReleaseDateRange() {
     return this.movieService.getMoviesByReleaseDateRange();
   }
+  @Get('/now-playing-trailers')
+  @ApiOperation({ summary: 'Get trailers for now playing movies' })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully retrieved the now playing movie trailers.',
+  })
+  getNowPlayingMovieTrailers() {
+    return this.movieService.getNowPlayingMovieTrailers();
+  }
 }

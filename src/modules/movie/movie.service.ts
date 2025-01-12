@@ -1,6 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/shared/prisma/prisma.service';
-import _ from 'lodash';
 import { addMonths, subMonths } from 'date-fns';
 
 @Injectable()
@@ -306,6 +305,33 @@ export class MovieService {
       });
     } catch (error) {
       throw new BadRequestException('Failed to retrieve movies.');
+    }
+  }
+  async getNowPlayingMovieTrailers() {
+    try {
+      const movies = await this.prisma.nowPlayingMovie.findMany({
+        take: 15,
+        select: {
+          id: true,
+          tmdb_id: true,
+          backdrop_path: true,
+          release_date: true,
+          title: true,
+          original_title: true,
+        },
+      });
+
+      return await Promise.all(
+        movies.map(async (movie) => {
+          const trailers = await this.prisma.movie.findUnique({
+            where: { tmdb_id: movie.tmdb_id },
+            select: { trailers: true },
+          });
+          return { ...movie, trailers: trailers?.trailers || [] };
+        }),
+      );
+    } catch (error) {
+      throw new BadRequestException('Failed to retrieve now playing movies.');
     }
   }
 }
