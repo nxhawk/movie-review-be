@@ -55,3 +55,8 @@ export type TmdbConfig = {
   apiKey: string;
   endpoint: string;
 };
+
+export type LlmConfig = {
+  apiKey: string;
+  endpoint: string;
+};

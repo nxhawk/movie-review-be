@@ -29,12 +29,21 @@ import { RatingModule } from './modules/rating/rating.module';
 import { WatchlistMiddleware } from './middlewares/watchlist.middleware';
 import { MovieModule } from './modules/movie/movie.module';
 import { PersonModule } from './modules/person/person.module';
+import { LlmModule } from './modules/llm/llm.module';
+import llmConfig from './configs/llm.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [appConfig, authConfig, databaseConfig, mailConfig, tmdbConfig],
+      load: [
+        appConfig,
+        authConfig,
+        databaseConfig,
+        mailConfig,
+        tmdbConfig,
+        llmConfig,
+      ],
       cache: true,
       expandVariables: true,
       envFilePath: '.env',
@@ -122,6 +131,7 @@ import { PersonModule } from './modules/person/person.module';
     RatingModule,
     MovieModule,
     PersonModule,
+    LlmModule,
   ],
 })
 export class AppModule implements NestModule {
@@ -139,6 +149,10 @@ export class AppModule implements NestModule {
         },
         {
           path: 'movie/(.*)',
+          method: RequestMethod.GET,
+        },
+        {
+          path: 'llm/(.*)',
           method: RequestMethod.GET,
         },
         {

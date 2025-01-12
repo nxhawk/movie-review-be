@@ -9,4 +9,5 @@ export const ROUTES = {
   RATING: 'rating',
   MOVIE: 'movie',
   PERSON: 'person',
+  LLM: 'llm',
 };
