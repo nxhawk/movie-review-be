@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 import _ from 'lodash';
+import { addMonths, subMonths } from 'date-fns';
 
 @Injectable()
 export class MovieService {
@@ -75,24 +76,24 @@ export class MovieService {
     };
   }
 
-  async getMovieDetail(movieId: string) {
-    try {
-      const movie = await this.prisma.movie.findUnique({
-        where: { tmdb_id: parseInt(movieId) },
-      });
-      if (!movie) throw new BadRequestException('Movie not found.');
-      return _.omit(movie, [
-        'watchListIDs',
-        'favoriteListIDs',
-        'historyIDs',
-        'trailers',
-        'reviews',
-        'credits',
-      ]);
-    } catch (error) {
-      throw new BadRequestException('Movie not found.');
-    }
-  }
+  // async getMovieDetail(movieId: string) {
+  //   try {
+  //     const movie = await this.prisma.movie.findUnique({
+  //       where: { tmdb_id: parseInt(movieId) },
+  //     });
+  //     if (!movie) throw new BadRequestException('Movie not found.');
+  //     return _.omit(movie, [
+  //       'watchListIDs',
+  //       'favoriteListIDs',
+  //       'historyIDs',
+  //       'trailers',
+  //       'reviews',
+  //       'credits',
+  //     ]);
+  //   } catch (error) {
+  //     throw new BadRequestException('Movie not found.');
+  //   }
+  // }
 
   async getTrendingMoviesOfDay(query) {
     const page = Number(query['page']) || 1;
@@ -264,6 +265,47 @@ export class MovieService {
       };
     } catch (error) {
       throw new BadRequestException('Movie not found.');
+    }
+  }
+
+  async getMoviesByReleaseDateRange() {
+    try {
+      const sixMonthsFromNow = addMonths(new Date(), 3);
+      const twoMonthsBefore = subMonths(new Date(), 1);
+
+      return await this.prisma.movie.findMany({
+        where: {
+          OR: [
+            {
+              release_date: {
+                gte: twoMonthsBefore.toISOString(),
+                lte: new Date().toISOString(),
+              },
+            },
+            {
+              release_date: {
+                gte: new Date().toISOString(),
+                lte: sixMonthsFromNow.toISOString(),
+              },
+            },
+          ],
+        },
+        orderBy: {
+          popularity: 'desc',
+        },
+        take: 15,
+        select: {
+          id: true,
+          tmdb_id: true,
+          backdrop_path: true,
+          release_date: true,
+          title: true,
+          original_title: true,
+          trailers: true,
+        },
+      });
+    } catch (error) {
+      throw new BadRequestException('Failed to retrieve movies.');
     }
   }
 }
