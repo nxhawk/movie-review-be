@@ -359,7 +359,7 @@ export class MovieService {
             },
             {
               genre_ids: {
-                hasSome: movie.genres.map((genre) => genre.id),
+                hasSome: movie.genres.map((genre) => genre['id']),
               },
             },
           ],
@@ -385,7 +385,7 @@ export class MovieService {
       // Lọc các phim có số lượng genres trùng khớp >= count
       const filteredMovies = allMovies.filter((popularMovie) => {
         const matchingGenres = popularMovie.genre_ids.filter((id) =>
-          movie.genres.map((g) => g.id).includes(id),
+          movie.genres.map((g) => g['id']).includes(id),
         );
         return matchingGenres.length >= count;
       });
@@ -466,13 +466,16 @@ export class MovieService {
       ].filter(Boolean),
     };
 
+    // Fetch more results than needed
+    const extraResults = perPage * (genreIds.length > 0 ? 3 : 1);
+
     const movies = await this.prisma.movie.findMany({
       where: filters,
       orderBy: {
         [validSortField]: validSortOrder,
       },
-      skip: (page - 1) * perPage,
-      take: perPage,
+      skip: (page - 1) * extraResults,
+      take: extraResults,
       select: {
         adult: true,
         original_language: true,
@@ -489,6 +492,7 @@ export class MovieService {
         genres: true,
       },
     });
+
     // Manually filter movies based on genres
     const filteredMovies =
       genreIds.length > 0
@@ -497,12 +501,15 @@ export class MovieService {
           )
         : movies;
 
-    const totalResults = await this.prisma.movie.count({ where: filters });
+    // Slice the filtered results to match the perPage value
+    const paginatedMovies = filteredMovies.slice(0, perPage);
+
+    const totalResults = filteredMovies.length;
     const totalPages = Math.ceil(totalResults / perPage);
 
     return {
       page,
-      results: filteredMovies,
+      results: paginatedMovies,
       total_pages: totalPages,
       total_results: totalResults,
     };
