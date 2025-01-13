@@ -504,7 +504,7 @@ export class MovieService {
     // Slice the filtered results to match the perPage value
     const paginatedMovies = filteredMovies.slice(0, perPage);
 
-    const totalResults = await this.prisma.movie.count({ where: filters })/3;
+    const totalResults = await this.prisma.movie.count({ where: filters })/(genreIds.length > 0 ? 3: 1);
     const totalPages = Math.ceil(totalResults / perPage);
 
     return {
