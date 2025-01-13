@@ -2,6 +2,8 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { addMonths, subMonths } from 'date-fns';
 import _ from 'lodash';
+import { Prisma } from '@prisma/client';
+
 @Injectable()
 export class MovieService {
   constructor(private prisma: PrismaService) {}
@@ -307,6 +309,7 @@ export class MovieService {
       throw new BadRequestException('Failed to retrieve movies.');
     }
   }
+
   async getNowPlayingMovieTrailers() {
     try {
       const movies = await this.prisma.nowPlayingMovie.findMany({
@@ -333,5 +336,113 @@ export class MovieService {
     } catch (error) {
       throw new BadRequestException('Failed to retrieve now playing movies.');
     }
+  }
+
+  async advancedSearchMovies(query) {
+    const sort_by = query['sort_by'] || 'popularity.desc';
+    const vote_average_gte = Number(query['vote_average.gte']);
+    const vote_average_lte = Number(query['vote_average.lte']) || 10;
+    const with_genres = query['with_genres'] || '';
+    const release_date_gte = query['release_date.gte'] || '';
+    const release_date_lte = query['release_date.lte'] || '';
+    const searchQuery = query['query'] || '';
+    const page = Number(query['page']) || 1;
+    const perPage = Number(query['perPage']) || 20;
+
+    const [sortField, sortOrder] = sort_by.split('.');
+    const validSortOrder = ['asc', 'desc'].includes(sortOrder)
+      ? sortOrder
+      : 'desc';
+    const validSortField = [
+      'popularity',
+      'vote_average',
+      'release_date',
+    ].includes(sortField)
+      ? sortField
+      : 'popularity';
+
+    const voteAverageGte = vote_average_gte
+      ? Number(vote_average_gte)
+      : undefined;
+    const voteAverageLte = vote_average_lte
+      ? Number(vote_average_lte)
+      : undefined;
+    const genreIds = with_genres ? with_genres.split(',').map(Number) : [];
+    const releaseDateGte = release_date_gte
+      ? new Date(release_date_gte).toISOString()
+      : undefined;
+    const releaseDateLte = release_date_lte
+      ? new Date(release_date_lte).toISOString()
+      : undefined;
+
+    const filters: Prisma.MovieWhereInput = {
+      AND: [
+        searchQuery
+          ? {
+              title: {
+                contains: searchQuery,
+                mode: 'insensitive' as Prisma.QueryMode,
+              },
+            }
+          : undefined,
+        voteAverageGte || voteAverageLte
+          ? {
+              vote_average: {
+                gte: voteAverageGte,
+                lte: voteAverageLte,
+              },
+            }
+          : undefined,
+        releaseDateGte || releaseDateLte
+          ? {
+              release_date: {
+                gte: releaseDateGte || undefined,
+                lte: releaseDateLte || undefined,
+              },
+            }
+          : undefined,
+      ].filter(Boolean),
+    };
+
+    const movies = await this.prisma.movie.findMany({
+      where: filters,
+      orderBy: {
+        [validSortField]: validSortOrder,
+      },
+      skip: (page - 1) * perPage,
+      take: perPage,
+      select: {
+        adult: true,
+        original_language: true,
+        original_title: true,
+        overview: true,
+        popularity: true,
+        tmdb_id: true,
+        title: true,
+        poster_path: true,
+        backdrop_path: true,
+        release_date: true,
+        vote_average: true,
+        vote_count: true,
+        genres: true,
+      },
+    });
+    // Manually filter movies based on genres
+    const filteredMovies =
+      genreIds.length > 0
+        ? movies.filter((movie) =>
+            movie.genres.some((genre) => genreIds.includes(genre['id'])),
+          )
+        : movies;
+
+    const totalResults = await this.prisma.movie.count({ where: filters });
+    const totalPages = Math.ceil(totalResults / perPage);
+
+    return {
+      page,
+      results: filteredMovies,
+      total_pages: totalPages,
+      total_results: totalResults,
+    };
   }
 }

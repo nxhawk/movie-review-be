@@ -108,6 +108,15 @@ export class MovieController {
   getNowPlayingMovieTrailers() {
     return this.movieService.getNowPlayingMovieTrailers();
   }
+  @Get('/advanced-search')
+  @ApiOperation({ summary: 'Advanced search for movies' })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully retrieved the search results.',
+  })
+  advancedSearchMovies(@Query() query) {
+    return this.movieService.advancedSearchMovies(query);
+  }
 
   @Get('/:movieId')
   @ApiOperation({ summary: 'Get the detail of a movie' })
