@@ -309,7 +309,6 @@ export class MovieService {
       throw new BadRequestException('Failed to retrieve movies.');
     }
   }
-
   async getNowPlayingMovieTrailers() {
     try {
       const movies = await this.prisma.nowPlayingMovie.findMany({
@@ -335,6 +334,69 @@ export class MovieService {
       );
     } catch (error) {
       throw new BadRequestException('Failed to retrieve now playing movies.');
+    }
+  }
+
+  async getMovieRecommendationsByGenres(movieId: string) {
+    // lay danh sach the loai phim
+    const limit = 20;
+    try {
+      const movie = await this.prisma.movie.findUnique({
+        where: { tmdb_id: parseInt(movieId) },
+        select: { genres: true, tmdb_id: true },
+      });
+
+      const count = movie.genres.length < 3 ? movie.genres.length : 3;
+
+      // lay danh sach popular movie co genres trùng với movie >= count
+      const allMovies = await this.prisma.popularMovie.findMany({
+        where: {
+          AND: [
+            {
+              tmdb_id: {
+                not: movie.tmdb_id,
+              },
+            },
+            {
+              genre_ids: {
+                hasSome: movie.genres.map((genre) => genre.id),
+              },
+            },
+          ],
+        },
+        select: {
+          id: true,
+          title: true,
+          tmdb_id: true,
+          original_title: true,
+          backdrop_path: true,
+          poster_path: true,
+          release_date: true,
+          vote_average: true,
+          genre_ids: true,
+        },
+      });
+
+      if (allMovies.length <= limit)
+        return {
+          data: allMovies,
+        };
+
+      // Lọc các phim có số lượng genres trùng khớp >= count
+      const filteredMovies = allMovies.filter((popularMovie) => {
+        const matchingGenres = popularMovie.genre_ids.filter((id) =>
+          movie.genres.map((g) => g.id).includes(id),
+        );
+        return matchingGenres.length >= count;
+      });
+
+      // Trả về tối đa 20 phim
+      return {
+        data: filteredMovies.slice(0, limit),
+      };
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException('Movie not found.');
     }
   }
 

@@ -18,6 +18,21 @@ export class MovieController {
     return this.movieService.getMovieGenres();
   }
 
+  @Get('/recommend/:movieId')
+  @ApiOperation({ summary: 'Get recommended movies by genres' })
+  @ApiParam({
+    name: 'movieId',
+    type: String,
+    description: 'The ID of the movie to get recommendations',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully retrieved the recommended movies.',
+  })
+  getRecommendedMovies(@Param() { movieId }) {
+    return this.movieService.getMovieRecommendationsByGenres(movieId);
+  }
+
   @Get('/search')
   @ApiOperation({ summary: 'Search for movies' })
   @ApiResponse({
@@ -87,9 +102,10 @@ export class MovieController {
   getUpcomingMovies(@Query() query) {
     return this.movieService.getUpcomingMovies(query);
   }
+
   @Get('/release-date-range')
   @ApiOperation({
-    summary: 'Get movies released 3 months from now or 1 months before',
+    summary: 'Get movies released 6 months from now or 2 months before',
   })
   @ApiResponse({
     status: 200,

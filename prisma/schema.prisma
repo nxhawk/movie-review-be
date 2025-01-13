@@ -125,10 +125,11 @@ model Movie {
   vote_count         Int                 
   
   // relationships
-  genres             Json[]
+  genres             MovieGenres[]
   reviews            Json[]
   credits            MovieCredits
   trailers           Json[]
+  keywords           Keyword[]
 
   watchListIDs       String[]            @db.ObjectId
   watchLists         WatchList[]         @relation(fields: [watchListIDs], references: [id])
@@ -293,4 +294,14 @@ model UpcomingMovie {
 type MovieCredits {
   cast Json[]
   crew Json[]
+}
+
+type Keyword {
+  id   Int
+  name String
+}
+
+type MovieGenres {
+  id   Int
+  name String
 }

@@ -21,11 +21,12 @@ export class LlmService {
     const search = query['query'];
     const llm_api_key = this.configService.get('llm.apiKey');
     const collection_name = 'movies';
+    const amount = Number(query['amount']) || 20;
 
     const { data } = await firstValueFrom(
       this.httpService
         .get<MovieRetrieverDto>(
-          `/retriever/?llm_api_key=${llm_api_key}&collection_name=${collection_name}&query=${search}&threshold=${threshold}`,
+          `/retriever/?llm_api_key=${llm_api_key}&collection_name=${collection_name}&query=${search}&threshold=${threshold}&amount=${amount}`,
         )
         .pipe(
           catchError((error: AxiosError) => {
