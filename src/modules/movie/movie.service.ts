@@ -466,16 +466,11 @@ export class MovieService {
       ].filter(Boolean),
     };
 
-    // Fetch more results than needed
-    const extraResults = perPage * (genreIds.length > 0 ? 3 : 1);
-
-    const movies = await this.prisma.movie.findMany({
+    const allMovies = await this.prisma.movie.findMany({
       where: filters,
       orderBy: {
         [validSortField]: validSortOrder,
       },
-      skip: (page - 1) * extraResults,
-      take: extraResults,
       select: {
         adult: true,
         original_language: true,
@@ -496,15 +491,20 @@ export class MovieService {
     // Manually filter movies based on genres
     const filteredMovies =
       genreIds.length > 0
-        ? movies.filter((movie) =>
+        ? allMovies.filter((movie) =>
             movie.genres.some((genre) => genreIds.includes(genre['id'])),
           )
-        : movies;
+        : allMovies;
+
+    // Set the count of filtered movies as totalResults
+    const totalResults = filteredMovies.length;
 
     // Slice the filtered results to match the perPage value
-    const paginatedMovies = filteredMovies.slice(0, perPage);
+    const paginatedMovies = filteredMovies.slice(
+      (page - 1) * perPage,
+      page * perPage,
+    );
 
-    const totalResults = filteredMovies.length;
     const totalPages = Math.ceil(totalResults / perPage);
 
     return {
