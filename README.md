@@ -1,88 +1,115 @@
-# How to run
+# CineMatch - Backend - TMDB
 
-```bash
+CineMatch is an advanced movie search and recommendation platform built using React.js (frontend) and NestJS (backend), integrating AI-powered search to enhance user experience.  Users can explore trending movies, search by keywords or AI queries, and manage their watchlist, favorites, and ratings.
+
+## Table of Contents
+
+- [About](#about)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Features](#features)
+- [Contributing](#contributing)
+
+## About
+
+Final project
+
+Advanced Web Programming
+
+### Tech Stack
+- Front-end: Reactjs, Material UI, react-router, react-hook-form
+- Back-end: Nestjs, Prisma, MongoDB, Passportjs
+
+## Deployment
+
+Front-end: https://movie-review-fe-rose.vercel.app/
+
+Back-end: https://movie-review-be-hhs7.onrender.com/docs
+
+## Installation
+
+```
+git clone https://github.com/nxhawk/movie-review-be.git
+cd movie-review-be
+```
+
+## Usage
+
+```
 npm install
 npm run prisma:generate
 npm run start:dev
 ```
 
-# How to generate data with your database mongoose (optional)
-```bash
-npm run seed
+Then create a `.env` file
+
+```sh
+cp .env.example .env
 ```
 
-mongoimport mongodb+srv://movie-review:12345@movie.n1mai.mongodb.net/test --collection Movie tmdb.movies.json --jsonArray
+Then goto http://localhost:3001/docs
 
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+## Features
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+### Authentication Flow
+- Sign Up
+- Sign In with email and password
+- Sign In with Google
+- Sign In with Facebook
+- Account activation by email
+- Verify access token
+- Refresh token
+- Sign out
+- Managing sign-in and sign-out UI states for users
+- Restrict feature access based on the user’s role
+- Use a popular authentication library
+- Forgot password and renew password by email
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+### Home page
+- Search panel
+- Trending movies by today, this week
+- Latest trailers
+- Popular movies
+- Overall information: header, footer, ...
 
-## Description
+###  Simple Search
+- Search results
+- Filtering
+- LLM search
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+### AI search
+-  LLM movie search: For example, when asked "Sea adventure animation movies," the website would list movies that match the request.
+- AI navigation:  For example, when asked "Casts of Moana," the website would redirect to the cast listing for the Moana movie.
 
-## Installation
+### Movie details
+- Quick information about the movie
+- Rating
+- Mark as favorite
+- Add to watch list
+- Casts
+- Reviews
+- Recommendations
+  - Similar movie recommendations based on user history or genres of current selection
+  -  Similar movies based on vectors search with reasoned match:  Movies are recommended based on vector search, which analyzes similarities in themes, genres, and other features to provide a reasoned match.
 
-```bash
-$ npm install
-```
+### Cast details
+- Quick info
+- Acting list
 
-## Running the app
+### User profile
+- Watchlist
+- Favorite list
+- Rating list
 
-```bash
-# development
-$ npm run start
+### Bonus
+- Dockerize (development, production)
+- CI/CD
+- Speech to text
+- Reponsive
 
-# watch mode
-$ npm run start:dev
+## Contributing
 
-# production mode
-$ npm run start:prod
-```
+This project was created and is actively maintained by:
 
-## Test
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
+- [21120447 Nguyễn Nhật Hào](https://github.com/nxhawk)
+- [21120453 Tô Phương Hiếu](https://github.com/phuonghieuto)
